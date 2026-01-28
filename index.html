@@ -2,110 +2,295 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https:;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marcus Pramborg - CV</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #e0f7fa;
-        }
-        .profile-img {
-            width: 180px; /* Change this to set the width of the image */
-            height: 180px; /* Change this to set the height of the image */
-            border-radius: 50%; /* Makes the image circular. Set to 0 for square, or 10px for rounded corners */
-            object-fit: cover; /* Ensures the image covers the area without stretching */
-            border: 2px solid #00796b; /* Optional: adds a border with color */
-}
-
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .header, .section {
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 2em;
-            color: #00796b;
-        }
-        .header p {
-            margin: 5px 0;
-            color: #004d40;
-        }
-        .section h2 {
-            margin-bottom: 10px;
-            color: #00796b;
-        }
-        .section p {
-            margin: 5px 0;
-            color: #004d40;
-        }
-        .section ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .section ul li {
-            margin-bottom: 10px;
-            color: #004d40;
-        }
-    </style>
+    <title>ADHD/ADD Exam Support Tools</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts (optional - will fallback to system fonts if offline) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <!-- Profile Image Section -->
-         <a href="https://www.linkedin.com/in/marcus-pramborg/">
-        <img src="https://media.licdn.com/dms/image/v2/D4D03AQF_ZVc3omipyg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1719019150617?e=1735776000&v=beta&t=2bPA1cHYa1FWDjVGRzE7a18pbnbSioxoVpcXz8Fkxw4" alt="Marcus Pramborg" class="profile-img">
-        </a>
+        <header>
+            <h1>Study Support Tools</h1>
+            <p class="subtitle">Accessibility tools for students with ADHD/ADD</p>
+        </header>
 
-        <div class="header">
-            <h1>Marcus Pramborg</h1>
-            <p>Email: marcus.pramborg@gmail.com</p>
-            <p>Phone:</p>
-            <p>LinkedIn: <a href="https://www.linkedin.com/in/marcus-pramborg/" target="_blank">https://www.linkedin.com/in/marcus-pramborg-281b9a229/</a></p>
+        <!-- Main AI Assistant (always visible, larger) -->
+        <section class="ai-main tool-card" data-tool="ai">
+            <h2>AI Study Assistant</h2>
+            <div class="ai-chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="ai-message">
+                        Hi! I'm your AI study assistant. Ask me questions about studying, focus, or motivation, and I'll give you personalized tips! I can also send periodic study reminders.
+                    </div>
+                </div>
+                <div class="chat-input-section">
+                    <input type="text" id="chatInput" placeholder="Ask me anything about studying..." maxlength="200">
+                    <button id="sendMessage" class="btn btn-primary">Send</button>
+                </div>
+                <div class="ai-settings">
+                    <label>
+                        <input type="checkbox" id="periodicTips" checked>
+                        Periodic study tips (every 15 minutes)
+                    </label>
+                </div>
+                <div class="ai-status" id="aiStatus">Ready to help!</div>
+            </div>
+        </section>
+
+        <!-- Tools visibility settings -->
+        <section class="tool-settings tool-card">
+            <h3>Customize dashboard</h3>
+            <p class="small">Choose which tools appear on your dashboard.</p>
+            <div id="toolsSettings" class="tools-settings-list">
+                <!-- Checkboxes populated by script -->
+            </div>
+        </section>
+
+        <div class="tools-grid">
+            <!-- Timer and Breaks -->
+            <div class="tool-card" data-tool="timer">
+                <h3>Focus Timer</h3>
+                <!-- Visual Pomodoro ring -->
+                <div class="pomodoro-container">
+                    <svg class="pomodoro-ring" width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+                        <circle class="ring-bg" cx="60" cy="60" r="50" stroke-width="8" fill="none"></circle>
+                        <circle id="pomodoroProgress" class="ring-progress" cx="60" cy="60" r="50" stroke-width="8" stroke-linecap="round" fill="none"></circle>
+                    </svg>
+                    <div class="timer-display" id="timerDisplay">25:00</div>
+                </div>
+                <div class="timer-controls">
+                    <button id="startTimer" class="btn btn-primary">Start</button>
+                    <button id="pauseTimer" class="btn btn-secondary">Pause</button>
+                    <button id="resetTimer" class="btn btn-secondary">Reset</button>
+                </div>
+                <div class="timer-settings">
+                    <label for="timerMinutes">Minutes:</label>
+                    <input type="number" id="timerMinutes" value="25" min="1" max="120">
+                </div>
+            </div>
+
+             <!-- Quick Notes -->
+            <div class="tool-card" data-tool="notes">
+                <h3>Quick Notes</h3>
+                <textarea id="quickNotes" placeholder="Write quick notes, reminders, or thoughts here..."></textarea>
+                <div class="notes-controls">
+                    <button id="clearNotes" class="btn btn-secondary">Clear</button>
+                    <button id="saveNotes" class="btn btn-primary">Save Locally</button>
+                </div>
+                <div id="savedNotes"></div>
+            </div>
+
+            <!-- Drawing Tool -->
+            <div class="tool-card" data-tool="drawing">
+                <h3>Drawing Canvas</h3>
+                <div class="drawing-container">
+                    <canvas id="drawingCanvas" width="300" height="200"></canvas>
+                    <div class="drawing-controls">
+                        <div class="drawing-tools">
+                            <button id="penTool" class="btn btn-secondary tool-active" title="Pen">✏️</button>
+                            <button id="eraserTool" class="btn btn-secondary" title="Eraser">🧽</button>
+                            <button id="lineTool" class="btn btn-secondary" title="Line">📏</button>
+                            <button id="rectangleTool" class="btn btn-secondary" title="Rectangle">▭</button>
+                            <button id="circleTool" class="btn btn-secondary" title="Circle">○</button>
+                        </div>
+                        <div class="drawing-options">
+                            <label for="brushSize">Size:</label>
+                            <input type="range" id="brushSize" min="1" max="20" value="2">
+                            <input type="color" id="brushColor" value="#667eea">
+                        </div>
+                        <div class="drawing-actions">
+                            <button id="clearCanvas" class="btn btn-secondary">Clear</button>
+                            <button id="saveDrawing" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <!-- Progress Tracker -->
+            <div class="tool-card" data-tool="progress">
+                <h3>Progress Tracker</h3>
+                <div class="progress-section">
+                    <label for="totalQuestions">Total Questions:</label>
+                    <input type="number" id="totalQuestions" value="10" min="1">
+                </div>
+                <div class="progress-section">
+                    <label for="completedQuestions">Completed:</label>
+                    <input type="number" id="completedQuestions" value="0" min="0">
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0% Complete</div>
+            </div>
+
+            <!-- Stress Management -->
+            <div class="tool-card" data-tool="breathing">
+                <h3>Calm Corner</h3>
+                <div class="breathing-exercise">
+                    <div class="breathing-circle" id="breathingCircle"></div>
+                    <div class="breathing-text" id="breathingText">Click to start breathing exercise</div>
+                    <button id="startBreathing" class="btn btn-primary">Start 4-7-8 Breathing</button>
+                </div>
+            </div>
+
+            <!-- Text-to-Speech -->
+            <div class="tool-card" data-tool="tts">
+                <h3>Text-to-Speech</h3>
+                <div class="tts-section">
+                    <textarea id="ttsText" placeholder="Paste text here to have it read aloud..."></textarea>
+                    <div class="file-upload-section">
+                        <label for="textFileUpload" class="file-upload-label">
+                            📁 Upload Text File
+                            <input type="file" id="textFileUpload" accept=".txt,.md" style="display: none;">
+                        </label>
+                    </div>
+                </div>
+                <div class="tts-controls">
+                    <button id="playTTS" class="btn btn-primary">▶️ Play</button>
+                    <button id="pauseTTS" class="btn btn-secondary">⏸️ Pause</button>
+                    <button id="stopTTS" class="btn btn-secondary">⏹️ Stop</button>
+                </div>
+                <div class="tts-settings">
+                    <div class="tts-setting">
+                        <label for="speechRate">Speed:</label>
+                        <input type="range" id="speechRate" min="0.5" max="2" step="0.1" value="1">
+                        <span id="speechRateValue">1x</span>
+                    </div>
+                    <div class="tts-setting">
+                        <label for="speechPitch">Pitch:</label>
+                        <input type="range" id="speechPitch" min="0.5" max="2" step="0.1" value="1">
+                        <span id="speechPitchValue">1x</span>
+                    </div>
+                </div>
+                <div class="tts-progress">
+                    <div class="tts-progress-bar">
+                        <div class="tts-progress-fill" id="ttsProgressFill"></div>
+                    </div>
+                    <div class="tts-status" id="ttsStatus">Ready to read</div>
+                </div>
+            </div>
+
+            <!-- Study Companion -->
+            <div class="tool-card" data-tool="study">
+                <h3>Study Companion</h3>
+                <div class="study-companion">
+                    <div class="companion-tabs">
+                        <button class="tab-button active" data-tab="strategies">Study Strategies</button>
+                        <button class="tab-button" data-tab="focus">Focus Tips</button>
+                        <button class="tab-button" data-tab="anxiety">Anxiety Help</button>
+                        <button class="tab-button" data-tab="breaks">Break Ideas</button>
+                    </div>
+                    
+                    <div class="tab-content active" id="strategies-tab">
+                        <h4>Study Strategies for ADHD</h4>
+                        <ul class="tips-list">
+                            <li><strong>Break it down:</strong> Divide large tasks into 5-10 minute chunks</li>
+                            <li><strong>Use timers:</strong> Work in short sprints with regular breaks</li>
+                            <li><strong>Multi-sensory learning:</strong> Read aloud, use colors, draw diagrams</li>
+                            <li><strong>Active recall:</strong> Test yourself instead of just re-reading</li>
+                            <li><strong>Change locations:</strong> Study in different places to boost memory</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tab-content" id="focus-tab">
+                        <h4>Focus Enhancement</h4>
+                        <ul class="tips-list">
+                            <li><strong>Remove distractions:</strong> Put phone away, use website blockers</li>
+                            <li><strong>Background noise:</strong> Try white noise, brown noise, or instrumental music</li>
+                            <li><strong>Fidget tools:</strong> Stress balls, fidget cubes for hands</li>
+                            <li><strong>Standing desk:</strong> Alternate between sitting and standing</li>
+                            <li><strong>Two-task rule:</strong> If restless, combine studying with light movement</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tab-content" id="anxiety-tab">
+                        <h4>Anxiety Management</h4>
+                        <ul class="tips-list">
+                            <li><strong>Progressive relaxation:</strong> Tense and release muscle groups</li>
+                            <li><strong>Grounding technique:</strong> Name 5 things you see, 4 you hear, 3 you feel</li>
+                            <li><strong>Positive self-talk:</strong> "I am prepared, I can do this"</li>
+                            <li><strong>Breathing exercises:</strong> Use the 4-7-8 technique above</li>
+                            <li><strong>Perspective:</strong> This is one test, not your entire future</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="tab-content" id="breaks-tab">
+                        <h4>Effective Break Ideas</h4>
+                        <ul class="tips-list">
+                            <li><strong>Movement breaks:</strong> Stretch, walk, do jumping jacks</li>
+                            <li><strong>Hydration:</strong> Drink water, have a healthy snack</li>
+                            <li><strong>Fresh air:</strong> Step outside or open a window</li>
+                            <li><strong>Quick meditation:</strong> 2-3 minutes of deep breathing</li>
+                            <li><strong>Reward yourself:</strong> Small treats for completing sections</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Calendar -->
+            <div class="tool-card" data-tool="calendar">
+                <h3>📅 Event Calendar</h3>
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button id="prevMonth" class="btn btn-small">◀</button>
+                        <h4 id="currentMonth">October 2025</h4>
+                        <button id="nextMonth" class="btn btn-small">▶</button>
+                    </div>
+                    <div class="calendar-header-days">
+                        <div class="calendar-header-day">Sun</div>
+                        <div class="calendar-header-day">Mon</div>
+                        <div class="calendar-header-day">Tue</div>
+                        <div class="calendar-header-day">Wed</div>
+                        <div class="calendar-header-day">Thu</div>
+                        <div class="calendar-header-day">Fri</div>
+                        <div class="calendar-header-day">Sat</div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar days will be generated by JavaScript -->
+                    </div>
+                    <div class="add-event-section">
+                        <input type="text" id="eventTitle" placeholder="Event title..." maxlength="50">
+                        <input type="date" id="eventDate">
+                        <input type="time" id="eventTime">
+                        <button id="addEvent" class="btn btn-primary">Add Event</button>
+                    </div>
+                    <div class="events-list" id="eventsList">
+                        <h5>Upcoming Events:</h5>
+                        <div id="eventsContainer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Focus Sounds (white/pink/brown noise) -->
+            <div class="tool-card" data-tool="sounds">
+                <h3>Focus Sounds</h3>
+                <div class="sounds-controls">
+                    <label><input type="radio" name="noiseType" value="none" checked> Off</label>
+                    <label><input type="radio" name="noiseType" value="white"> White</label>
+                    <label><input type="radio" name="noiseType" value="pink"> Pink</label>
+                    <label><input type="radio" name="noiseType" value="brown"> Brown</label>
+                </div>
+                <div class="sounds-controls">
+                    <label for="noiseVolume">Volume</label>
+                    <input type="range" id="noiseVolume" min="0" max="1" step="0.01" value="0.4">
+                </div>
+                <div class="sounds-controls">
+                    <button id="playNoise" class="btn btn-primary">Play</button>
+                    <button id="stopNoise" class="btn btn-secondary">Stop</button>
+                </div>
+            </div>
         </div>
-        <div class="section">
-            <h2>Profile</h2>
-            <p>I am a 3rd year student at KTH Royal Institute of Technology, studying Industrial Engineering and Management with a specialization in Computer Science. 
-                I am passionate about leveraging technology to solve complex problems and improve efficiency in various industries. 
-                My academic background and hands-on experience have equipped me with a strong foundation in both engineering principles and computer science.</p>
-        </div>
-        <div class="section">
-            <h2>Experience</h2>
-            <ul>
-                <li>
-                    <strong>Patient Transporter - Södersjukhuset AB</strong> (Jun 2023 - Present)
-                    <p>Responsible for safely transporting patients to various locations within the hospital. Collaborated with medical staff to coordinate patient transfers and maintain accurate records.</p>
-                </li>
-                <li>
-                    <strong>Air Base Security Soldier - The Swedish Armed Forces</strong> (Aug 2021 - Jun 2022)
-                    <p>Ensured the security and safety of the air base by conducting regular patrols, monitoring surveillance systems, and responding to security breaches. Worked closely with other military personnel to enforce security protocols and maintain a high level of readiness. Award for Best Soldier.</p>
-                </li>
-            </ul>
-        </div>
-        <div class="section">
-            <h2>Education</h2>
-            <ul>
-                <li>
-                    <strong>Industrial Engineering and Management at KTH Royal Institute of Technology</strong>
-                    <p>Specializing in Computer Science, Software Engineering track.</p>
-                    <p>Expected Graduation: Jun 2027</p>
-                </li>
-            </ul>
-        </div>
-        <div class="section">
-            <h2>Skills</h2>
-            <ul>
-                <li>HTML</li>
-                <li>Python, Java</li>
-                <li>SQL</li>
-            </ul>
+
+        <!-- Floating Controls -->
+        <div class="floating-controls">
+            <button id="minimizeMode" class="btn btn-floating" title="Minimize Mode">▼</button>
+            <button id="darkMode" class="btn btn-floating" title="Toggle Dark Mode">🌙</button>
         </div>
     </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
