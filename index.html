@@ -2,295 +2,636 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https:;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADHD/ADD Exam Support Tools</title>
+    <meta name="description" content="FocusFlow - ADHD/ADD Exam Support Toolkit">
+    <title>FocusFlow - ADHD/ADD Support Toolkit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <!-- Google Fonts (optional - will fallback to system fonts if offline) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Study Support Tools</h1>
-            <p class="subtitle">Accessibility tools for students with ADHD/ADD</p>
-        </header>
-
-        <!-- Main AI Assistant (always visible, larger) -->
-        <section class="ai-main tool-card" data-tool="ai">
-            <h2>AI Study Assistant</h2>
-            <div class="ai-chat-container">
-                <div class="chat-messages" id="chatMessages">
-                    <div class="ai-message">
-                        Hi! I'm your AI study assistant. Ask me questions about studying, focus, or motivation, and I'll give you personalized tips! I can also send periodic study reminders.
+<body class="theme-calm">
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">🧠</span>
+                <span class="brand-text">FocusFlow</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-section="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </button>
+                <button class="nav-btn" data-section="timer">
+                    <span class="nav-icon">⏱️</span>
+                    <span class="nav-label">Timer</span>
+                </button>
+                <button class="nav-btn" data-section="notes">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-label">Notes</span>
+                </button>
+                <button class="nav-btn" data-section="calendar">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-label">Calendar</span>
+                </button>
+                <button class="nav-btn" data-section="sounds">
+                    <span class="nav-icon">🎵</span>
+                    <span class="nav-label">Sounds</span>
+                </button>
+                <button class="nav-btn" data-section="tts">
+                    <span class="nav-icon">🔊</span>
+                    <span class="nav-label">Read Aloud</span>
+                </button>
+                <button class="nav-btn" data-section="ai">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-label">AI Helper</span>
+                </button>
+                <button class="nav-btn" data-section="canvas">
+                    <span class="nav-icon">🎨</span>
+                    <span class="nav-label">Sketch</span>
+                </button>
+                <button class="nav-btn" data-section="breaks">
+                    <span class="nav-icon">🧘</span>
+                    <span class="nav-label">Breaks</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="stats-row">
+                    <span class="stat-item">🔥 <span id="streakCount">0</span></span>
+                    <span class="stat-item">⭐ <span id="pointsCount">0</span></span>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <button class="icon-btn" id="settingsBtn" title="Settings">⚙️</button>
+                </div>
+            </header>
+            
+            <!-- Settings Panel -->
+            <div class="settings-panel" id="settingsPanel">
+                <h3>Settings</h3>
+                <div class="setting-group">
+                    <label>Theme</label>
+                    <div class="theme-options">
+                        <button class="theme-btn active" data-theme="calm">🌊 Calm</button>
+                        <button class="theme-btn" data-theme="forest">🌲 Forest</button>
+                        <button class="theme-btn" data-theme="sunset">🌅 Sunset</button>
+                        <button class="theme-btn" data-theme="dark">🌙 Dark</button>
                     </div>
                 </div>
-                <div class="chat-input-section">
-                    <input type="text" id="chatInput" placeholder="Ask me anything about studying..." maxlength="200">
-                    <button id="sendMessage" class="btn btn-primary">Send</button>
-                </div>
-                <div class="ai-settings">
-                    <label>
-                        <input type="checkbox" id="periodicTips" checked>
-                        Periodic study tips (every 15 minutes)
+                <div class="setting-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="highContrastToggle">
+                        <span>High Contrast</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="reducedMotionToggle">
+                        <span>Reduced Motion</span>
                     </label>
                 </div>
-                <div class="ai-status" id="aiStatus">Ready to help!</div>
             </div>
-        </section>
-
-        <!-- Tools visibility settings -->
-        <section class="tool-settings tool-card">
-            <h3>Customize dashboard</h3>
-            <p class="small">Choose which tools appear on your dashboard.</p>
-            <div id="toolsSettings" class="tools-settings-list">
-                <!-- Checkboxes populated by script -->
-            </div>
-        </section>
-
-        <div class="tools-grid">
-            <!-- Timer and Breaks -->
-            <div class="tool-card" data-tool="timer">
-                <h3>Focus Timer</h3>
-                <!-- Visual Pomodoro ring -->
-                <div class="pomodoro-container">
-                    <svg class="pomodoro-ring" width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
-                        <circle class="ring-bg" cx="60" cy="60" r="50" stroke-width="8" fill="none"></circle>
-                        <circle id="pomodoroProgress" class="ring-progress" cx="60" cy="60" r="50" stroke-width="8" stroke-linecap="round" fill="none"></circle>
-                    </svg>
-                    <div class="timer-display" id="timerDisplay">25:00</div>
-                </div>
-                <div class="timer-controls">
-                    <button id="startTimer" class="btn btn-primary">Start</button>
-                    <button id="pauseTimer" class="btn btn-secondary">Pause</button>
-                    <button id="resetTimer" class="btn btn-secondary">Reset</button>
-                </div>
-                <div class="timer-settings">
-                    <label for="timerMinutes">Minutes:</label>
-                    <input type="number" id="timerMinutes" value="25" min="1" max="120">
-                </div>
-            </div>
-
-             <!-- Quick Notes -->
-            <div class="tool-card" data-tool="notes">
-                <h3>Quick Notes</h3>
-                <textarea id="quickNotes" placeholder="Write quick notes, reminders, or thoughts here..."></textarea>
-                <div class="notes-controls">
-                    <button id="clearNotes" class="btn btn-secondary">Clear</button>
-                    <button id="saveNotes" class="btn btn-primary">Save Locally</button>
-                </div>
-                <div id="savedNotes"></div>
-            </div>
-
-            <!-- Drawing Tool -->
-            <div class="tool-card" data-tool="drawing">
-                <h3>Drawing Canvas</h3>
-                <div class="drawing-container">
-                    <canvas id="drawingCanvas" width="300" height="200"></canvas>
-                    <div class="drawing-controls">
-                        <div class="drawing-tools">
-                            <button id="penTool" class="btn btn-secondary tool-active" title="Pen">✏️</button>
-                            <button id="eraserTool" class="btn btn-secondary" title="Eraser">🧽</button>
-                            <button id="lineTool" class="btn btn-secondary" title="Line">📏</button>
-                            <button id="rectangleTool" class="btn btn-secondary" title="Rectangle">▭</button>
-                            <button id="circleTool" class="btn btn-secondary" title="Circle">○</button>
-                        </div>
-                        <div class="drawing-options">
-                            <label for="brushSize">Size:</label>
-                            <input type="range" id="brushSize" min="1" max="20" value="2">
-                            <input type="color" id="brushColor" value="#667eea">
-                        </div>
-                        <div class="drawing-actions">
-                            <button id="clearCanvas" class="btn btn-secondary">Clear</button>
-                            <button id="saveDrawing" class="btn btn-primary">Save</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             
-            <!-- Progress Tracker -->
-            <div class="tool-card" data-tool="progress">
-                <h3>Progress Tracker</h3>
-                <div class="progress-section">
-                    <label for="totalQuestions">Total Questions:</label>
-                    <input type="number" id="totalQuestions" value="10" min="1">
-                </div>
-                <div class="progress-section">
-                    <label for="completedQuestions">Completed:</label>
-                    <input type="number" id="completedQuestions" value="0" min="0">
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text" id="progressText">0% Complete</div>
+            <!-- Sections Container -->
+            <div class="sections-container">
+                <!-- Dashboard Section -->
+                <section class="section active" id="section-dashboard">
+                    <div class="dashboard-grid">
+                        <!-- Quick Timer Widget -->
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>⏱️ Quick Timer</h3>
+                            </div>
+                            <div class="widget-body">
+                                <div class="mini-timer">
+                                    <div class="timer-circle small">
+                                        <svg viewBox="0 0 100 100">
+                                            <circle class="bg" cx="50" cy="50" r="45"/>
+                                            <circle class="progress" id="miniProgress" cx="50" cy="50" r="45"/>
+                                        </svg>
+                                        <span class="time" id="miniTime">25:00</span>
+                                    </div>
+                                    <button class="btn primary" id="miniStartBtn">▶ Start</button>
+                                </div>
+                                <p class="widget-stat"><span id="sessionsToday">0</span> sessions today</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Tasks Widget -->
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>📋 Today's Tasks</h3>
+                                <button class="btn small" id="addTaskBtn">+ Add</button>
+                            </div>
+                            <div class="widget-body">
+                                <div class="tasks-list" id="tasksList">
+                                    <p class="empty-msg">No tasks yet</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Widget -->
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>📈 Progress</h3>
+                            </div>
+                            <div class="widget-body">
+                                <div class="progress-grid">
+                                    <div class="progress-item">
+                                        <div class="progress-circle">
+                                            <span id="focusHours">0h</span>
+                                        </div>
+                                        <span>Focus Time</span>
+                                    </div>
+                                    <div class="progress-item">
+                                        <div class="progress-circle">
+                                            <span id="tasksCompleted">0</span>
+                                        </div>
+                                        <span>Tasks Done</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Study Tip Widget -->
+                        <div class="widget wide">
+                            <div class="widget-header">
+                                <h3>💡 Study Tip</h3>
+                                <button class="btn small ghost" id="newTipBtn">New Tip</button>
+                            </div>
+                            <div class="widget-body">
+                                <p id="tipText">Break large tasks into smaller chunks. Your brain loves small wins!</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Study Buddy Widget -->
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>🎓 Study Buddy</h3>
+                            </div>
+                            <div class="widget-body">
+                                <div class="buddy-section">
+                                    <div class="buddy-avatar">
+                                        <span class="avatar-emoji">📚</span>
+                                        <span class="status-dot" id="buddyDot"></span>
+                                    </div>
+                                    <p id="buddyMessage">Start a focus session together!</p>
+                                    <button class="btn secondary" id="buddyBtn">Find Buddy</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Badges Widget -->
+                        <div class="widget">
+                            <div class="widget-header">
+                                <h3>🏆 Badges</h3>
+                            </div>
+                            <div class="widget-body">
+                                <div class="badges-grid" id="badgesGrid">
+                                    <span class="badge" title="First Focus">🌟</span>
+                                    <span class="badge locked" title="7-Day Streak">🔥</span>
+                                    <span class="badge locked" title="Note Master">📝</span>
+                                    <span class="badge locked" title="Hydration Hero">💧</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Timer Section -->
+                <section class="section" id="section-timer">
+                    <div class="timer-page">
+                        <div class="timer-main">
+                            <div class="timer-circle large">
+                                <svg viewBox="0 0 200 200">
+                                    <defs>
+                                        <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="var(--primary)"/>
+                                            <stop offset="100%" stop-color="var(--secondary)"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <circle class="bg" cx="100" cy="100" r="90"/>
+                                    <circle class="progress" id="timerProgress" cx="100" cy="100" r="90"/>
+                                </svg>
+                                <div class="timer-display">
+                                    <span class="time" id="timerTime">25:00</span>
+                                    <span class="label" id="timerLabel">Focus Time</span>
+                                </div>
+                            </div>
+                            
+                            <div class="timer-controls">
+                                <button class="btn large primary" id="timerStartBtn">▶ Start Focus</button>
+                                <button class="btn large secondary" id="timerPauseBtn" style="display:none">⏸ Pause</button>
+                                <button class="btn large ghost" id="timerResetBtn">↺ Reset</button>
+                            </div>
+                            
+                            <div class="timer-presets">
+                                <h4>Duration</h4>
+                                <div class="preset-group">
+                                    <button class="preset-btn active" data-minutes="25">25 min</button>
+                                    <button class="preset-btn" data-minutes="45">45 min</button>
+                                    <button class="preset-btn" data-minutes="60">60 min</button>
+                                    <button class="preset-btn" data-minutes="90">90 min</button>
+                                </div>
+                                <h4>Break</h4>
+                                <div class="preset-group">
+                                    <button class="preset-btn break" data-minutes="5" data-break="true">5 min</button>
+                                    <button class="preset-btn break" data-minutes="10" data-break="true">10 min</button>
+                                    <button class="preset-btn break" data-minutes="15" data-break="true">15 min</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="timer-sidebar">
+                            <h3>Today's Sessions</h3>
+                            <div class="session-count" id="sessionCountDisplay">0</div>
+                            <p>completed pomodoros</p>
+                            <div class="session-history" id="sessionHistory">
+                                <p class="empty-msg">No sessions yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Notes Section -->
+                <section class="section" id="section-notes">
+                    <div class="notes-page">
+                        <div class="notes-toolbar">
+                            <button class="btn primary" id="newNoteBtn">➕ New Note</button>
+                            <button class="btn secondary" id="voiceNoteBtn">🎤 Voice</button>
+                            <button class="btn ghost" id="exportNotesBtn">📥 Export</button>
+                            <input type="search" class="search-input" id="notesSearch" placeholder="Search notes...">
+                        </div>
+                        <div class="notes-grid" id="notesGrid">
+                            <div class="empty-state">
+                                <span class="empty-icon">📝</span>
+                                <h3>No notes yet</h3>
+                                <p>Click "New Note" to create one</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Calendar Section -->
+                <section class="section" id="section-calendar">
+                    <div class="calendar-page">
+                        <div class="calendar-main">
+                            <div class="calendar-nav">
+                                <button class="btn icon" id="prevMonthBtn">◀</button>
+                                <h2 id="currentMonthDisplay">January 2026</h2>
+                                <button class="btn icon" id="nextMonthBtn">▶</button>
+                                <button class="btn small" id="todayBtn">Today</button>
+                            </div>
+                            <div class="calendar-weekdays">
+                                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                            </div>
+                            <div class="calendar-grid" id="calendarGrid"></div>
+                        </div>
+                        <div class="calendar-sidebar">
+                            <h3>Add Event</h3>
+                            <form class="event-form" id="eventForm">
+                                <input type="text" id="eventTitle" placeholder="Event title" required>
+                                <input type="date" id="eventDate" required>
+                                <input type="time" id="eventTime">
+                                <select id="eventCategory">
+                                    <option value="exam">📚 Exam</option>
+                                    <option value="assignment">📝 Assignment</option>
+                                    <option value="study">📖 Study Session</option>
+                                    <option value="reminder">⏰ Reminder</option>
+                                </select>
+                                <button type="submit" class="btn primary">Add Event</button>
+                            </form>
+                            <h3>Upcoming Events</h3>
+                            <div class="events-list" id="eventsList">
+                                <p class="empty-msg">No upcoming events</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Sounds Section -->
+                <section class="section" id="section-sounds">
+                    <div class="sounds-page">
+                        <div class="sounds-header">
+                            <h2>🎵 Focus Sounds</h2>
+                            <p>Mix ambient sounds to create your perfect study environment</p>
+                        </div>
+                        
+                        <div class="sound-presets">
+                            <button class="preset-card" data-preset="deepFocus">
+                                <span class="icon">🎯</span>
+                                <span class="label">Deep Focus</span>
+                            </button>
+                            <button class="preset-card" data-preset="nature">
+                                <span class="icon">🌿</span>
+                                <span class="label">Nature</span>
+                            </button>
+                            <button class="preset-card" data-preset="rain">
+                                <span class="icon">🌧️</span>
+                                <span class="label">Rain</span>
+                            </button>
+                            <button class="preset-card" data-preset="cafe">
+                                <span class="icon">☕</span>
+                                <span class="label">Café</span>
+                            </button>
+                        </div>
+                        
+                        <div class="sound-mixer">
+                            <h3>Sound Mixer</h3>
+                            <div class="sound-channels">
+                                <div class="sound-channel">
+                                    <div class="channel-info">
+                                        <span class="channel-icon">⚪</span>
+                                        <span class="channel-name">White Noise</span>
+                                    </div>
+                                    <input type="range" class="volume-slider" data-sound="white" min="0" max="100" value="50">
+                                    <button class="channel-btn" data-sound="white">▶</button>
+                                </div>
+                                <div class="sound-channel">
+                                    <div class="channel-info">
+                                        <span class="channel-icon">🩷</span>
+                                        <span class="channel-name">Pink Noise</span>
+                                    </div>
+                                    <input type="range" class="volume-slider" data-sound="pink" min="0" max="100" value="50">
+                                    <button class="channel-btn" data-sound="pink">▶</button>
+                                </div>
+                                <div class="sound-channel">
+                                    <div class="channel-info">
+                                        <span class="channel-icon">🟤</span>
+                                        <span class="channel-name">Brown Noise</span>
+                                    </div>
+                                    <input type="range" class="volume-slider" data-sound="brown" min="0" max="100" value="50">
+                                    <button class="channel-btn" data-sound="brown">▶</button>
+                                </div>
+                            </div>
+                            <div class="master-controls">
+                                <button class="btn large secondary" id="stopAllSoundsBtn">⏹ Stop All</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- TTS Section -->
+                <section class="section" id="section-tts">
+                    <div class="tts-page">
+                        <div class="tts-header">
+                            <h2>🔊 Text-to-Speech</h2>
+                            <p>Have your study materials read aloud</p>
+                        </div>
+                        
+                        <div class="tts-input-section">
+                            <textarea id="ttsText" placeholder="Paste or type text here to have it read aloud..." rows="8"></textarea>
+                            <div class="file-upload">
+                                <label class="btn secondary">
+                                    📁 Upload File
+                                    <input type="file" id="ttsFileInput" accept=".txt,.md" hidden>
+                                </label>
+                                <span id="ttsFileName"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="tts-controls">
+                            <button class="btn large primary" id="ttsPlayBtn">▶ Play</button>
+                            <button class="btn large secondary" id="ttsPauseBtn">⏸ Pause</button>
+                            <button class="btn large ghost" id="ttsStopBtn">⏹ Stop</button>
+                        </div>
+                        
+                        <div class="tts-settings">
+                            <div class="setting-row">
+                                <label for="ttsVoice">Voice</label>
+                                <select id="ttsVoice"></select>
+                            </div>
+                            <div class="setting-row">
+                                <label>Speed: <span id="ttsSpeedVal">1x</span></label>
+                                <input type="range" id="ttsSpeed" min="0.5" max="2" step="0.1" value="1">
+                            </div>
+                            <div class="setting-row">
+                                <label>Pitch: <span id="ttsPitchVal">1x</span></label>
+                                <input type="range" id="ttsPitch" min="0.5" max="2" step="0.1" value="1">
+                            </div>
+                        </div>
+                        
+                        <div class="tts-highlight" id="ttsHighlight"></div>
+                    </div>
+                </section>
+                
+                <!-- AI Section -->
+                <section class="section" id="section-ai">
+                    <div class="ai-page">
+                        <div class="ai-header">
+                            <div class="ai-avatar-large">🤖</div>
+                            <div>
+                                <h2>AI Study Assistant</h2>
+                                <p>Your friendly, encouraging study companion</p>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-quick-actions">
+                            <button class="quick-btn" data-action="motivate">💪 Motivate Me</button>
+                            <button class="quick-btn" data-action="studyTip">💡 Study Tip</button>
+                            <button class="quick-btn" data-action="breakTime">🧘 Break Ideas</button>
+                            <button class="quick-btn" data-action="pomodoro">🍅 Pomodoro Info</button>
+                        </div>
+                        
+                        <div class="chat-container" id="chatContainer">
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message bot">
+                                    <span class="avatar">🤖</span>
+                                    <div class="bubble">
+                                        <p>Hi there! 👋 I'm your AI study buddy. I'm here to help you stay focused, motivated, and on track. Ask me anything!</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chatInput" placeholder="Ask me anything..." maxlength="500">
+                                <button class="btn primary" id="chatSendBtn">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Canvas Section -->
+                <section class="section" id="section-canvas">
+                    <div class="canvas-page">
+                        <div class="canvas-toolbar">
+                            <div class="tool-group">
+                                <button class="tool-btn active" data-tool="pen" title="Pen">✏️</button>
+                                <button class="tool-btn" data-tool="eraser" title="Eraser">🧽</button>
+                                <button class="tool-btn" data-tool="line" title="Line">📏</button>
+                                <button class="tool-btn" data-tool="rect" title="Rectangle">▭</button>
+                                <button class="tool-btn" data-tool="circle" title="Circle">◯</button>
+                            </div>
+                            <div class="tool-group">
+                                <label>Size: <input type="range" id="brushSize" min="1" max="30" value="3"></label>
+                                <label>Color: <input type="color" id="brushColor" value="#667eea"></label>
+                            </div>
+                            <div class="tool-group">
+                                <button class="btn small" id="undoBtn">↶ Undo</button>
+                                <button class="btn small" id="redoBtn">↷ Redo</button>
+                                <button class="btn small ghost" id="clearCanvasBtn">Clear</button>
+                                <button class="btn small primary" id="downloadCanvasBtn">💾 Save</button>
+                            </div>
+                        </div>
+                        <div class="canvas-area">
+                            <canvas id="sketchCanvas"></canvas>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Breaks Section -->
+                <section class="section" id="section-breaks">
+                    <div class="breaks-page">
+                        <div class="breaks-header">
+                            <h2>🧘 Sensory Breaks</h2>
+                            <p>Take care of your body and mind</p>
+                        </div>
+                        
+                        <div class="breaks-grid">
+                            <!-- Breathing -->
+                            <div class="break-card">
+                                <div class="break-icon">🌬️</div>
+                                <h3>4-7-8 Breathing</h3>
+                                <p>Calm your nervous system</p>
+                                <div class="breathing-visual" id="breathingVisual">
+                                    <div class="breath-circle" id="breathCircle"></div>
+                                    <span class="breath-text" id="breathText">Ready</span>
+                                </div>
+                                <button class="btn primary" id="breathingBtn">Start</button>
+                            </div>
+                            
+                            <!-- Stretching -->
+                            <div class="break-card">
+                                <div class="break-icon">🧘</div>
+                                <h3>Quick Stretch</h3>
+                                <p>Release tension</p>
+                                <div class="stretch-visual">
+                                    <div class="stretch-emoji" id="stretchEmoji">🙆</div>
+                                    <p id="stretchText">Click to start</p>
+                                </div>
+                                <button class="btn primary" id="stretchBtn">Start</button>
+                            </div>
+                            
+                            <!-- Eye Rest -->
+                            <div class="break-card">
+                                <div class="break-icon">👁️</div>
+                                <h3>20-20-20 Eye Rest</h3>
+                                <p>Rest your eyes every 20 min</p>
+                                <div class="eye-visual">
+                                    <div class="eye-timer" id="eyeTimer">20</div>
+                                    <p id="eyeText">Look 20 feet away</p>
+                                </div>
+                                <button class="btn primary" id="eyeBtn">Start</button>
+                            </div>
+                            
+                            <!-- Grounding -->
+                            <div class="break-card">
+                                <div class="break-icon">🌍</div>
+                                <h3>5-4-3-2-1 Grounding</h3>
+                                <p>Reduce anxiety</p>
+                                <div class="grounding-visual">
+                                    <p id="groundingText">Name 5 things you see</p>
+                                    <div class="grounding-dots" id="groundingDots">
+                                        <span class="dot active">5</span>
+                                        <span class="dot">4</span>
+                                        <span class="dot">3</span>
+                                        <span class="dot">2</span>
+                                        <span class="dot">1</span>
+                                    </div>
+                                </div>
+                                <button class="btn primary" id="groundingBtn">Start</button>
+                            </div>
+                            
+                            <!-- Hydration -->
+                            <div class="break-card wide">
+                                <div class="break-icon">💧</div>
+                                <h3>Hydration Tracker</h3>
+                                <p>Stay hydrated!</p>
+                                <div class="hydration-visual">
+                                    <div class="glasses" id="glassesContainer">
+                                        <span class="glass" data-idx="1">🥛</span>
+                                        <span class="glass" data-idx="2">🥛</span>
+                                        <span class="glass" data-idx="3">🥛</span>
+                                        <span class="glass" data-idx="4">🥛</span>
+                                        <span class="glass" data-idx="5">🥛</span>
+                                        <span class="glass" data-idx="6">🥛</span>
+                                        <span class="glass" data-idx="7">🥛</span>
+                                        <span class="glass" data-idx="8">🥛</span>
+                                    </div>
+                                    <p><span id="glassCount">0</span>/8 glasses</p>
+                                </div>
+                                <button class="btn primary" id="logWaterBtn">💧 Log Glass</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
-
-            <!-- Stress Management -->
-            <div class="tool-card" data-tool="breathing">
-                <h3>Calm Corner</h3>
-                <div class="breathing-exercise">
-                    <div class="breathing-circle" id="breathingCircle"></div>
-                    <div class="breathing-text" id="breathingText">Click to start breathing exercise</div>
-                    <button id="startBreathing" class="btn btn-primary">Start 4-7-8 Breathing</button>
-                </div>
-            </div>
-
-            <!-- Text-to-Speech -->
-            <div class="tool-card" data-tool="tts">
-                <h3>Text-to-Speech</h3>
-                <div class="tts-section">
-                    <textarea id="ttsText" placeholder="Paste text here to have it read aloud..."></textarea>
-                    <div class="file-upload-section">
-                        <label for="textFileUpload" class="file-upload-label">
-                            📁 Upload Text File
-                            <input type="file" id="textFileUpload" accept=".txt,.md" style="display: none;">
-                        </label>
-                    </div>
-                </div>
-                <div class="tts-controls">
-                    <button id="playTTS" class="btn btn-primary">▶️ Play</button>
-                    <button id="pauseTTS" class="btn btn-secondary">⏸️ Pause</button>
-                    <button id="stopTTS" class="btn btn-secondary">⏹️ Stop</button>
-                </div>
-                <div class="tts-settings">
-                    <div class="tts-setting">
-                        <label for="speechRate">Speed:</label>
-                        <input type="range" id="speechRate" min="0.5" max="2" step="0.1" value="1">
-                        <span id="speechRateValue">1x</span>
-                    </div>
-                    <div class="tts-setting">
-                        <label for="speechPitch">Pitch:</label>
-                        <input type="range" id="speechPitch" min="0.5" max="2" step="0.1" value="1">
-                        <span id="speechPitchValue">1x</span>
-                    </div>
-                </div>
-                <div class="tts-progress">
-                    <div class="tts-progress-bar">
-                        <div class="tts-progress-fill" id="ttsProgressFill"></div>
-                    </div>
-                    <div class="tts-status" id="ttsStatus">Ready to read</div>
-                </div>
-            </div>
-
-            <!-- Study Companion -->
-            <div class="tool-card" data-tool="study">
-                <h3>Study Companion</h3>
-                <div class="study-companion">
-                    <div class="companion-tabs">
-                        <button class="tab-button active" data-tab="strategies">Study Strategies</button>
-                        <button class="tab-button" data-tab="focus">Focus Tips</button>
-                        <button class="tab-button" data-tab="anxiety">Anxiety Help</button>
-                        <button class="tab-button" data-tab="breaks">Break Ideas</button>
-                    </div>
-                    
-                    <div class="tab-content active" id="strategies-tab">
-                        <h4>Study Strategies for ADHD</h4>
-                        <ul class="tips-list">
-                            <li><strong>Break it down:</strong> Divide large tasks into 5-10 minute chunks</li>
-                            <li><strong>Use timers:</strong> Work in short sprints with regular breaks</li>
-                            <li><strong>Multi-sensory learning:</strong> Read aloud, use colors, draw diagrams</li>
-                            <li><strong>Active recall:</strong> Test yourself instead of just re-reading</li>
-                            <li><strong>Change locations:</strong> Study in different places to boost memory</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="tab-content" id="focus-tab">
-                        <h4>Focus Enhancement</h4>
-                        <ul class="tips-list">
-                            <li><strong>Remove distractions:</strong> Put phone away, use website blockers</li>
-                            <li><strong>Background noise:</strong> Try white noise, brown noise, or instrumental music</li>
-                            <li><strong>Fidget tools:</strong> Stress balls, fidget cubes for hands</li>
-                            <li><strong>Standing desk:</strong> Alternate between sitting and standing</li>
-                            <li><strong>Two-task rule:</strong> If restless, combine studying with light movement</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="tab-content" id="anxiety-tab">
-                        <h4>Anxiety Management</h4>
-                        <ul class="tips-list">
-                            <li><strong>Progressive relaxation:</strong> Tense and release muscle groups</li>
-                            <li><strong>Grounding technique:</strong> Name 5 things you see, 4 you hear, 3 you feel</li>
-                            <li><strong>Positive self-talk:</strong> "I am prepared, I can do this"</li>
-                            <li><strong>Breathing exercises:</strong> Use the 4-7-8 technique above</li>
-                            <li><strong>Perspective:</strong> This is one test, not your entire future</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="tab-content" id="breaks-tab">
-                        <h4>Effective Break Ideas</h4>
-                        <ul class="tips-list">
-                            <li><strong>Movement breaks:</strong> Stretch, walk, do jumping jacks</li>
-                            <li><strong>Hydration:</strong> Drink water, have a healthy snack</li>
-                            <li><strong>Fresh air:</strong> Step outside or open a window</li>
-                            <li><strong>Quick meditation:</strong> 2-3 minutes of deep breathing</li>
-                            <li><strong>Reward yourself:</strong> Small treats for completing sections</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Event Calendar -->
-            <div class="tool-card" data-tool="calendar">
-                <h3>📅 Event Calendar</h3>
-                <div class="calendar-container">
-                    <div class="calendar-header">
-                        <button id="prevMonth" class="btn btn-small">◀</button>
-                        <h4 id="currentMonth">October 2025</h4>
-                        <button id="nextMonth" class="btn btn-small">▶</button>
-                    </div>
-                    <div class="calendar-header-days">
-                        <div class="calendar-header-day">Sun</div>
-                        <div class="calendar-header-day">Mon</div>
-                        <div class="calendar-header-day">Tue</div>
-                        <div class="calendar-header-day">Wed</div>
-                        <div class="calendar-header-day">Thu</div>
-                        <div class="calendar-header-day">Fri</div>
-                        <div class="calendar-header-day">Sat</div>
-                    </div>
-                    <div class="calendar-grid" id="calendarGrid">
-                        <!-- Calendar days will be generated by JavaScript -->
-                    </div>
-                    <div class="add-event-section">
-                        <input type="text" id="eventTitle" placeholder="Event title..." maxlength="50">
-                        <input type="date" id="eventDate">
-                        <input type="time" id="eventTime">
-                        <button id="addEvent" class="btn btn-primary">Add Event</button>
-                    </div>
-                    <div class="events-list" id="eventsList">
-                        <h5>Upcoming Events:</h5>
-                        <div id="eventsContainer"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Focus Sounds (white/pink/brown noise) -->
-            <div class="tool-card" data-tool="sounds">
-                <h3>Focus Sounds</h3>
-                <div class="sounds-controls">
-                    <label><input type="radio" name="noiseType" value="none" checked> Off</label>
-                    <label><input type="radio" name="noiseType" value="white"> White</label>
-                    <label><input type="radio" name="noiseType" value="pink"> Pink</label>
-                    <label><input type="radio" name="noiseType" value="brown"> Brown</label>
-                </div>
-                <div class="sounds-controls">
-                    <label for="noiseVolume">Volume</label>
-                    <input type="range" id="noiseVolume" min="0" max="1" step="0.01" value="0.4">
-                </div>
-                <div class="sounds-controls">
-                    <button id="playNoise" class="btn btn-primary">Play</button>
-                    <button id="stopNoise" class="btn btn-secondary">Stop</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Floating Controls -->
-        <div class="floating-controls">
-            <button id="minimizeMode" class="btn btn-floating" title="Minimize Mode">▼</button>
-            <button id="darkMode" class="btn btn-floating" title="Toggle Dark Mode">🌙</button>
+        </main>
+    </div>
+    
+    <!-- Task Modal -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal">
+            <button class="modal-close">&times;</button>
+            <h2>Add Task</h2>
+            <form id="taskForm">
+                <input type="text" id="taskInput" placeholder="What needs to be done?" required>
+                <select id="taskPriority">
+                    <option value="low">🟢 Low</option>
+                    <option value="medium" selected>🟡 Medium</option>
+                    <option value="high">🔴 High</option>
+                </select>
+                <input type="date" id="taskDate">
+                <button type="submit" class="btn primary">Add Task</button>
+            </form>
         </div>
     </div>
-
+    
+    <!-- Note Modal -->
+    <div class="modal-overlay" id="noteModal">
+        <div class="modal note-modal">
+            <button class="modal-close">&times;</button>
+            <h2>Note</h2>
+            <form id="noteForm">
+                <input type="text" id="noteTitle" placeholder="Note title" maxlength="50">
+                <textarea id="noteContent" placeholder="Write your thoughts..." rows="6"></textarea>
+                <div class="color-picker">
+                    <span class="color-opt active" data-color="#fef3c7" style="background:#fef3c7"></span>
+                    <span class="color-opt" data-color="#dbeafe" style="background:#dbeafe"></span>
+                    <span class="color-opt" data-color="#dcfce7" style="background:#dcfce7"></span>
+                    <span class="color-opt" data-color="#fce7f3" style="background:#fce7f3"></span>
+                    <span class="color-opt" data-color="#e0e7ff" style="background:#e0e7ff"></span>
+                    <span class="color-opt" data-color="#ffffff" style="background:#ffffff;border:1px solid #ccc"></span>
+                </div>
+                <button type="submit" class="btn primary">Save Note</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Celebration Modal -->
+    <div class="celebration-overlay" id="celebrationModal">
+        <div class="celebration-content">
+            <div class="confetti" id="confetti"></div>
+            <div class="celebration-emoji">🎉</div>
+            <h2>Amazing Work!</h2>
+            <p id="celebrationMsg">You completed a focus session!</p>
+            <button class="btn primary" id="celebrationCloseBtn">Continue</button>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
     <script src="script.js"></script>
 </body>
 </html>
