@@ -10,13 +10,18 @@ This guide will help you deploy FocusFlow with real AI capabilities using Vercel
 
 ## 🎯 Step-by-Step Deployment
 
-### Step 1: Get Your OpenAI API Key
+### Step 1: Get Your Groq API Key (FREE!)
 
-1. Go to https://platform.openai.com/api-keys
-2. Sign up or log in
-3. Click **"Create new secret key"**
-4. Copy the key (starts with `sk-...`)
-5. **Important**: You'll get $5 free credit as a new user!
+1. Go to https://console.groq.com/keys
+2. Click **"Sign Up"** or **"Login"** (can use Google/GitHub)
+3. Once logged in, you'll see the API Keys page
+4. Click **"Create API Key"**
+5. Give it a name like "FocusFlow" (optional)
+6. Click **"Submit"**
+7. **IMPORTANT**: Copy the key immediately (starts with `gsk_...`)
+   - It will only be shown once!
+   - Store it somewhere safe temporarily (you'll paste it in Vercel soon)
+8. **Bonus**: Groq is 100% free with no credit card required! 🎉
 
 ### Step 2: Push Your Code to GitHub
 
@@ -32,38 +37,170 @@ git remote add origin https://github.com/marcuspramborg/marcuspramborg.github.io
 git push -u origin main
 ```
 
-### Step 3: Deploy to Vercel
+### Step 3: Deploy to Vercel (Detailed)
 
-1. Go to https://vercel.com and sign up/login with GitHub
-2. Click **"Add New Project"**
-3. Select your `marcuspramborg.github.io` repository
-4. Vercel will auto-detect the settings - click **"Deploy"**
-5. Wait for deployment (usually < 1 minute)
+#### 3.1: Create Vercel Account
 
-### Step 4: Add Environment Variable
+1. Go to https://vercel.com
+2. Click **"Sign Up"** in the top right
+3. Choose **"Continue with GitHub"** (recommended - makes linking easier)
+4. Authorize Vercel to access your GitHub account
+5. You'll be redirected to the Vercel dashboard
 
-1. In Vercel dashboard, go to your project
-2. Click **"Settings"** tab
-3. Click **"Environment Variables"** in sidebar
-4. Add a new variable:
-   - **Name**: `OPENAI_API_KEY`
-   - **Value**: Your API key (paste the `sk-...` key)
-   - **Environment**: Select all (Production, Preview, Development)
-5. Click **"Save"**
+#### 3.2: Import Your Project
 
-### Step 5: Redeploy
+1. On the Vercel dashboard, click the **"Add New..."** button (top right)
+2. Select **"Project"** from the dropdown
+3. You'll see a list of your GitHub repositories
+4. Find `marcuspramborg.github.io` in the list
+5. Click **"Import"** next to it
 
-1. Go to **"Deployments"** tab
-2. Click the **"..."** menu on the latest deployment
-3. Select **"Redeploy"**
-4. Check "Use existing Build Cache" and click **"Redeploy"**
+#### 3.3: Configure Project Settings
 
-### Step 6: Test Your AI!
+1. **Project Name**: Vercel auto-fills this (you can customize it)
+   - Example: `focusflow` or keep the default
+   
+2. **Framework Preset**: Should auto-detect as "Other"
+   - No need to change this
+   
+3. **Root Directory**: Leave as `./` (default)
+   
+4. **Build Settings**: 
+   - Build Command: Leave empty (we don't need one)
+   - Output Directory: Leave empty
+   - Install Command: Leave empty
+   
+5. **Environment Variables**: 
+   - **Skip for now** - we'll add the API key after deployment
 
-1. Visit your new Vercel URL (e.g., `focusflow.vercel.app`)
-2. Go to the AI Helper tab
-3. Type a message like "I'm feeling overwhelmed with studying"
-4. The AI should respond with helpful, ADHD-friendly advice!
+6. Click the big **"Deploy"** button
+
+#### 3.4: Wait for Deployment
+
+1. You'll see a deployment progress screen with animated effects
+2. Vercel will:
+   - Clone your repository
+   - Build your project (takes 20-60 seconds)
+   - Deploy to their global CDN
+3. When complete, you'll see: **"Congratulations! Your project has been successfully deployed."**
+4. You'll get a URL like: `focusflow-abc123.vercel.app`
+5. Click **"Continue to Dashboard"**
+
+#### 3.5: Test Initial Deployment
+
+1. Click the URL or **"Visit"** button to open your site
+2. You should see your FocusFlow app working!
+3. **Note**: AI chat won't work yet (we need to add the API key next)
+
+### Step 4: Add Environment Variable (Your API Key)
+
+#### 4.1: Navigate to Settings
+
+1. In your Vercel project dashboard, look at the top navigation
+2. Click the **"Settings"** tab (between "Deployments" and "Analytics")
+
+#### 4.2: Open Environment Variables
+
+1. In the left sidebar, scroll down to find **"Environment Variables"**
+2. Click it - you'll see an empty list (or any existing variables)
+
+#### 4.3: Add Your Groq API Key
+
+1. You'll see three input fields:
+   
+   **Key (Name):**
+   - Type exactly: `GROQ_API_KEY`
+   - Must be exact - no spaces, correct capitalization!
+   
+   **Value:**
+   - Paste your Groq API key (the `gsk_...` key you copied earlier)
+   - Make sure there are no extra spaces before/after
+   
+   **Environments:**
+   - You'll see three checkboxes: Production, Preview, Development
+   - **Check all three boxes** ✅
+   - This ensures the key works in all deployment types
+
+2. Click **"Save"** button
+
+#### 4.4: Verify It Was Added
+
+1. You should now see `GROQ_API_KEY` in the list
+2. The value will be hidden (shows as `••••••••` for security)
+3. You'll see badges for: Production, Preview, Development
+
+### Step 5: Redeploy with New Environment Variable
+
+#### 5.1: Why Redeploy?
+
+Environment variables are only loaded during deployment. Your running site doesn't know about the API key yet!
+
+#### 5.2: Trigger a Redeployment
+
+1. Go back to the **"Deployments"** tab at the top
+2. You'll see a list of all deployments
+3. Find the most recent one (should be at the top)
+4. On the right side of that deployment row, click the **"..."** (three dots) button
+5. A dropdown menu appears - select **"Redeploy"**
+
+#### 5.3: Redeploy Options
+
+1. A modal dialog appears with options:
+   - **"Use existing Build Cache"** - ✅ Check this (faster deployment)
+   - You can leave other settings default
+2. Click the **"Redeploy"** button in the modal
+
+#### 5.4: Wait for Redeployment
+
+1. You'll see the deployment progress screen again
+2. This time it's faster (usually 15-30 seconds) because of the cache
+3. Watch for the success message
+4. Your site now has access to the `GROQ_API_KEY`!
+
+### Step 6: Test Your AI
+
+#### 6.1: Open Your Deployed Site
+
+1. Go back to your Vercel project dashboard
+2. At the top, you'll see a "Visit" button with your site URL
+3. Click it to open your live FocusFlow app
+4. Alternatively, visit the URL directly (e.g., `focusflow-abc123.vercel.app`)
+
+#### 6.2: Navigate to AI Helper
+
+1. Once your site loads, look at the left sidebar
+2. Click on **"AI Helper"** (the robot icon 🤖)
+3. You should see the chat interface
+
+#### 6.3: Send a Test Message
+
+Try one of these example messages:
+
+- "I'm feeling overwhelmed with studying"
+- "How do I stay focused with ADHD?"
+- "Break down my essay into small steps"
+- "I keep procrastinating, help!"
+
+#### 6.4: What to Expect
+
+**If Everything Works:** 
+- You'll see a typing indicator (three animated dots)
+- Within 1-3 seconds, the AI responds
+- Response should be helpful, ADHD-focused advice
+- Uses emojis and friendly tone
+
+**If Something's Wrong:**
+- See the Troubleshooting section below
+- Check browser console (F12) for error messages
+- Verify the API key was added correctly in Vercel
+
+#### 6.5: Test Conversation Memory
+
+1. Ask a follow-up question: "Can you give me more details?"
+2. The AI should remember your previous message
+3. Responses build on earlier context
+
+**Success!** Your AI is now live and working! 🎉
 
 ## 🔧 Configuration Options
 
