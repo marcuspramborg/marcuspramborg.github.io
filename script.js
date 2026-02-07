@@ -1685,3 +1685,536 @@ function downloadFile(name, content, type) {
 // Global functions for inline handlers
 window.deleteNote = deleteNote;
 window.toggleTask = toggleTask;
+
+// ============================================
+// BODY DOUBLING FUNCTIONALITY
+// ============================================
+
+const bodyDoubling = {
+    peer: null,
+    currentCall: null,
+    localStream: null,
+    remoteStream: null,
+    sessionStartTime: null,
+    sessionTimer: null,
+    dataConnection: null,
+    profile: null,
+    
+    init() {
+        this.loadProfile();
+        this.setupEventListeners();
+        this.checkProfileStatus();
+        this.populateTimezones();
+    },
+    
+    loadProfile() {
+        const saved = localStorage.getItem('bdProfile');
+        if (saved) {
+            this.profile = JSON.parse(saved);
+        }
+    },
+    
+    saveProfile(data) {
+        this.profile = data;
+        localStorage.setItem('bdProfile', JSON.stringify(data));
+    },
+    
+    checkProfileStatus() {
+        if (!this.profile) {
+            document.getElementById('bdProfileSetup').style.display = 'block';
+            document.getElementById('bdMain').style.display = 'none';
+        } else {
+            document.getElementById('bdProfileSetup').style.display = 'none';
+            document.getElementById('bdMain').style.display = 'block';
+            this.initializePeer();
+            this.loadPartners();
+            this.loadSessions();
+        }
+    },
+    
+    populateTimezones() {
+        const select = document.getElementById('bdTimezone');
+        if (!select) return;
+        
+        const timezones = [
+            'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
+            'America/Toronto', 'America/Vancouver', 'America/Mexico_City',
+            'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Madrid', 'Europe/Rome',
+            'Asia/Dubai', 'Asia/Kolkata', 'Asia/Shanghai', 'Asia/Tokyo', 'Asia/Seoul',
+            'Australia/Sydney', 'Australia/Melbourne', 'Pacific/Auckland'
+        ];
+        
+        const userTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        
+        timezones.forEach(tz => {
+            const option = document.createElement('option');
+            option.value = tz;
+            option.textContent = tz.replace(/_/g, ' ');
+            if (tz === userTZ) option.selected = true;
+            select.appendChild(option);
+        });
+    },
+    
+    setupEventListeners() {
+        // Profile creation
+        document.getElementById('bdCreateProfile')?.addEventListener('click', () => this.createProfile());
+        
+        // Tab switching
+        document.querySelectorAll('.bd-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+        });
+        
+        // Partner actions
+        document.getElementById('bdRefreshPartners')?.addEventListener('click', () => this.loadPartners());
+        document.getElementById('bdQuickMatch')?.addEventListener('click', () => this.quickMatch());
+        document.getElementById('bdScheduleSession')?.addEventListener('click', () => this.scheduleSession());
+        
+        // Video controls
+        document.getElementById('bdToggleMic')?.addEventListener('click', () => this.toggleMic());
+        document.getElementById('bdToggleVideo')?.addEventListener('click', () => this.toggleVideo());
+        document.getElementById('bdToggleScreen')?.addEventListener('click', () => this.toggleScreen());
+        document.getElementById('bdToggleChat')?.addEventListener('click', () => this.toggleChat());
+        document.getElementById('bdEndSession')?.addEventListener('click', () => this.endSession());
+        document.getElementById('bdCloseChat')?.addEventListener('click', () => this.toggleChat());
+        
+        // Chat
+        document.getElementById('bdSendChat')?.addEventListener('click', () => this.sendChatMessage());
+        document.getElementById('bdChatInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.sendChatMessage();
+        });
+    },
+    
+    createProfile() {
+        const name = document.getElementById('bdDisplayName').value.trim();
+        const timezone = document.getElementById('bdTimezone').value;
+        const sessionLength = document.getElementById('bdSessionLength').value;
+        
+        if (!name) {
+            alert('Please enter a display name');
+            return;
+        }
+        
+        const interests = Array.from(document.querySelectorAll('.checkbox-grid input:checked'))
+            .map(cb => cb.value);
+        
+        if (interests.length === 0) {
+            alert('Please select at least one interest');
+            return;
+        }
+        
+        const profile = {
+            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            name,
+            timezone,
+            interests,
+            sessionLength: parseInt(sessionLength),
+            createdAt: new Date().toISOString(),
+            availableNow: false
+        };
+        
+        this.saveProfile(profile);
+        this.checkProfileStatus();
+    },
+    
+    initializePeer() {
+        if (this.peer) return;
+        
+        try {
+            this.peer = new Peer(this.profile.id, {
+                config: {
+                    'iceServers': [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
+            
+            this.peer.on('open', (id) => {
+                console.log('Peer connection opened with ID:', id);
+            });
+            
+            this.peer.on('call', (call) => {
+                this.handleIncomingCall(call);
+            });
+            
+            this.peer.on('connection', (conn) => {
+                this.dataConnection = conn;
+                this.setupDataConnection(conn);
+            });
+            
+            this.peer.on('error', (err) => {
+                console.error('Peer error:', err);
+                alert('Connection error: ' + err.type);
+            });
+        } catch (err) {
+            console.error('Failed to initialize peer:', err);
+        }
+    },
+    
+    switchTab(tabName) {
+        document.querySelectorAll('.bd-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.bd-tab-content').forEach(c => c.classList.remove('active'));
+        
+        document.querySelector('[data-tab="\${tabName}"]').classList.add('active');
+        document.getElementById('bdTab\${tabName.charAt(0).toUpperCase() + tabName.slice(1)}').classList.add('active');
+    },
+    
+    loadPartners() {
+        const grid = document.getElementById('bdPartnersGrid');
+        grid.innerHTML = '<div class="bd-empty-state"><span class="empty-icon">👥</span><p>Loading partners...</p></div>';
+        
+        // Simulate loading partners (in production, this would fetch from a server)
+        setTimeout(() => {
+            const mockPartners = this.generateMockPartners();
+            this.displayPartners(mockPartners);
+        }, 1000);
+    },
+    
+    generateMockPartners() {
+        const names = ['Alex', 'Jordan', 'Sam', 'Casey', 'Morgan', 'Taylor', 'Riley', 'Avery'];
+        const statuses = ['available', 'busy', 'offline'];
+        const allInterests = ['math', 'science', 'languages', 'programming', 'arts', 'business', 'writing', 'other'];
+        
+        return names.map((name, i) => ({
+            id: 'partner_' + i,
+            name,
+            status: statuses[i % 3],
+            interests: allInterests.slice(i % 3, (i % 3) + 3),
+            timezone: 'EST',
+            sessionLength: [25, 50, 90][i % 3]
+        }));
+    },
+    
+    displayPartners(partners) {
+        const grid = document.getElementById('bdPartnersGrid');
+        
+        if (partners.length === 0) {
+            grid.innerHTML = '<div class="bd-empty-state"><span class="empty-icon">👥</span><p>No partners found. Try adjusting your filters!</p></div>';
+            return;
+        }
+        
+        grid.innerHTML = partners.map(partner => `
+            <div class="bd-partner-card">
+                <div class="bd-partner-header">
+                    <span class="bd-partner-name">\${partner.name}</span>
+                    <span class="bd-partner-status \${partner.status}">\${partner.status}</span>
+                </div>
+                <div class="bd-partner-interests">
+                    \${partner.interests.map(interest => \`<span class="bd-interest-tag">\${interest}</span>\`).join('')}
+                </div>
+                <div class="bd-partner-info">
+                    ⏰ \${partner.timezone} • Prefers \${partner.sessionLength}min sessions
+                </div>
+                <div class="bd-partner-actions">
+                    <button class="btn btn-primary" onclick="bodyDoubling.connectToPartner('\${partner.id}')" \${partner.status !== 'available' ? 'disabled' : ''}>
+                        \${partner.status === 'available' ? '📞 Call Now' : '💬 Message'}
+                    </button>
+                    <button class="btn btn-secondary" onclick="bodyDoubling.scheduleWithPartner('\${partner.id}')">
+                        📅 Schedule
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    },
+    
+    quickMatch() {
+        alert('🔍 Finding you a study partner...\\n\\nIn a full implementation, this would:\\n• Match you with available partners\\n• Consider your interests and timezone\\n• Start a session immediately\\n\\nFor now, try selecting a partner from the "Find Partners" tab!');
+    },
+    
+    scheduleSession() {
+        const partnerName = prompt('Enter partner name to schedule with:');
+        if (!partnerName) return;
+        
+        const dateTime = prompt('Enter date and time (e.g., "Feb 10, 2026 2:00 PM"):');
+        if (!dateTime) return;
+        
+        const session = {
+            id: 'session_' + Date.now(),
+            partner: partnerName,
+            dateTime,
+            duration: this.profile.sessionLength,
+            createdAt: new Date().toISOString()
+        };
+        
+        const sessions = JSON.parse(localStorage.getItem('bdSessions') || '[]');
+        sessions.push(session);
+        localStorage.setItem('bdSessions', JSON.stringify(sessions));
+        
+        this.loadSessions();
+        alert('✅ Session scheduled!');
+    },
+    
+    scheduleWithPartner(partnerId) {
+        alert(`📅 Scheduling with partner \${partnerId}...\\n\\nIn production, this would show a calendar picker with the partner's availability.`);
+    },
+    
+    loadSessions() {
+        const sessions = JSON.parse(localStorage.getItem('bdSessions') || '[]');
+        const container = document.getElementById('bdSessionsList');
+        
+        if (sessions.length === 0) {
+            container.innerHTML = '<div class="bd-empty-state"><span class="empty-icon">📅</span><p>No upcoming sessions. Find a partner or quick match to get started!</p></div>';
+            return;
+        }
+        
+        container.innerHTML = sessions.map(session => `
+            <div class="bd-session-card">
+                <div class="bd-session-header">
+                    <span class="bd-session-partner">👤 \${session.partner}</span>
+                </div>
+                <div class="bd-session-time">📅 \${session.dateTime} • \${session.duration} minutes</div>
+                <div class="bd-session-actions">
+                    <button class="btn btn-primary" onclick="bodyDoubling.joinSession('\${session.id}')">Join Session</button>
+                    <button class="btn btn-secondary" onclick="bodyDoubling.cancelSession('\${session.id}')">Cancel</button>
+                </div>
+            </div>
+        `).join('');
+    },
+    
+    async connectToPartner(partnerId) {
+        try {
+            // Get user media
+            this.localStream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true
+            });
+            
+            // Display local video
+            const localVideo = document.getElementById('bdLocalVideo');
+            localVideo.srcObject = this.localStream;
+            
+            // Initiate call
+            this.currentCall = this.peer.call(partnerId, this.localStream);
+            
+            this.currentCall.on('stream', (remoteStream) => {
+                this.handleRemoteStream(remoteStream);
+            });
+            
+            this.currentCall.on('close', () => {
+                this.endSession();
+            });
+            
+            // Setup data connection for chat
+            this.dataConnection = this.peer.connect(partnerId);
+            this.setupDataConnection(this.dataConnection);
+            
+            // Show active session
+            this.startSession(partnerId);
+            
+        } catch (err) {
+            console.error('Failed to connect:', err);
+            alert('Could not access camera/microphone. Please check permissions.');
+        }
+    },
+    
+    async handleIncomingCall(call) {
+        const accept = confirm(`Incoming call from a study partner. Accept?`);
+        
+        if (!accept) {
+            call.close();
+            return;
+        }
+        
+        try {
+            this.localStream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true
+            });
+            
+            const localVideo = document.getElementById('bdLocalVideo');
+            localVideo.srcObject = this.localStream;
+            
+            call.answer(this.localStream);
+            this.currentCall = call;
+            
+            call.on('stream', (remoteStream) => {
+                this.handleRemoteStream(remoteStream);
+            });
+            
+            call.on('close', () => {
+                this.endSession();
+            });
+            
+            this.startSession(call.peer);
+            
+        } catch (err) {
+            console.error('Failed to answer call:', err);
+            alert('Could not access camera/microphone.');
+        }
+    },
+    
+    handleRemoteStream(stream) {
+        this.remoteStream = stream;
+        const remoteVideo = document.getElementById('bdRemoteVideo');
+        remoteVideo.srcObject = stream;
+    },
+    
+    setupDataConnection(conn) {
+        conn.on('open', () => {
+            console.log('Data connection established');
+        });
+        
+        conn.on('data', (data) => {
+            if (data.type === 'chat') {
+                this.displayChatMessage(data.message, false);
+            }
+        });
+    },
+    
+    startSession(partnerId) {
+        document.getElementById('bdNoSession').style.display = 'none';
+        document.getElementById('bdSessionActive').style.display = 'block';
+        document.getElementById('bdPartnerNameOverlay').textContent = partnerId;
+        
+        // Switch to active session tab
+        this.switchTab('active');
+        
+        // Start timer
+        this.sessionStartTime = Date.now();
+        this.sessionTimer = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - this.sessionStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('bdSessionTimer').textContent = 
+                `\${minutes.toString().padStart(2, '0')}:\${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    },
+    
+    toggleMic() {
+        if (!this.localStream) return;
+        
+        const audioTrack = this.localStream.getAudioTracks()[0];
+        if (audioTrack) {
+            audioTrack.enabled = !audioTrack.enabled;
+            const btn = document.getElementById('bdToggleMic');
+            btn.classList.toggle('active', audioTrack.enabled);
+            btn.querySelector('.control-icon').textContent = audioTrack.enabled ? '🎤' : '🔇';
+        }
+    },
+    
+    toggleVideo() {
+        if (!this.localStream) return;
+        
+        const videoTrack = this.localStream.getVideoTracks()[0];
+        if (videoTrack) {
+            videoTrack.enabled = !videoTrack.enabled;
+            const btn = document.getElementById('bdToggleVideo');
+            btn.classList.toggle('active', videoTrack.enabled);
+            btn.querySelector('.control-icon').textContent = videoTrack.enabled ? '📹' : '📷';
+        }
+    },
+    
+    async toggleScreen() {
+        try {
+            if (!this.localStream.getVideoTracks()[0].label.includes('screen')) {
+                // Start screen sharing
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                const screenTrack = screenStream.getVideoTracks()[0];
+                
+                // Replace video track
+                const sender = this.currentCall.peerConnection
+                    .getSenders()
+                    .find(s => s.track.kind === 'video');
+                sender.replaceTrack(screenTrack);
+                
+                document.getElementById('bdToggleScreen').classList.add('active');
+                
+                screenTrack.onended = () => {
+                    this.toggleScreen(); // Switch back to camera
+                };
+            } else {
+                // Switch back to camera
+                const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const videoTrack = videoStream.getVideoTracks()[0];
+                
+                const sender = this.currentCall.peerConnection
+                    .getSenders()
+                    .find(s => s.track.kind === 'video');
+                sender.replaceTrack(videoTrack);
+                
+                document.getElementById('bdToggleScreen').classList.remove('active');
+            }
+        } catch (err) {
+            console.error('Screen sharing error:', err);
+            alert('Could not share screen');
+        }
+    },
+    
+    toggleChat() {
+        const sidebar = document.getElementById('bdChatSidebar');
+        sidebar.style.display = sidebar.style.display === 'none' ? 'flex' : 'none';
+    },
+    
+    sendChatMessage() {
+        const input = document.getElementById('bdChatInput');
+        const message = input.value.trim();
+        
+        if (!message || !this.dataConnection) return;
+        
+        this.dataConnection.send({
+            type: 'chat',
+            message
+        });
+        
+        this.displayChatMessage(message, true);
+        input.value = '';
+    },
+    
+    displayChatMessage(text, isSelf) {
+        const container = document.getElementById('bdChatMessages');
+        const div = document.createElement('div');
+        div.className = `bd-chat-message \${isSelf ? 'self' : 'other'}`;
+        div.textContent = text;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    },
+    
+    endSession() {
+        if (this.currentCall) {
+            this.currentCall.close();
+            this.currentCall = null;
+        }
+        
+        if (this.dataConnection) {
+            this.dataConnection.close();
+            this.dataConnection = null;
+        }
+        
+        if (this.localStream) {
+            this.localStream.getTracks().forEach(track => track.stop());
+            this.localStream = null;
+        }
+        
+        if (this.sessionTimer) {
+            clearInterval(this.sessionTimer);
+            this.sessionTimer = null;
+        }
+        
+        document.getElementById('bdNoSession').style.display = 'block';
+        document.getElementById('bdSessionActive').style.display = 'none';
+        document.getElementById('bdChatSidebar').style.display = 'none';
+        
+        // Clear videos
+        document.getElementById('bdLocalVideo').srcObject = null;
+        document.getElementById('bdRemoteVideo').srcObject = null;
+    },
+    
+    joinSession(sessionId) {
+        alert(`Joining session \${sessionId}...\\n\\nIn production, this would connect you to your scheduled partner.`);
+    },
+    
+    cancelSession(sessionId) {
+        const sessions = JSON.parse(localStorage.getItem('bdSessions') || '[]');
+        const filtered = sessions.filter(s => s.id !== sessionId);
+        localStorage.setItem('bdSessions', JSON.stringify(filtered));
+        this.loadSessions();
+    }
+};
+
+// Initialize body doubling when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    bodyDoubling.init();
+});
+
+// Make bodyDoubling accessible globally for inline event handlers
+window.bodyDoubling = bodyDoubling;

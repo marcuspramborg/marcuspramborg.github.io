@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="FocusFlow - ADHD/ADD Exam Support Toolkit">
-    <title>FocusFlow - ADHD/ADD Support Toolkit</title>
+    <meta name="description" content="Focus - ADHD/ADD Exam Support Toolkit">
+    <title>Focus - ADHD/ADD Support Toolkit</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body class="theme-calm">
     <div class="app">
@@ -16,7 +17,7 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-brand">
                 <span class="brand-icon">🧠</span>
-                <span class="brand-text">FocusFlow</span>
+                <span class="brand-text">Focus</span>
             </div>
             
             <nav class="sidebar-nav">
@@ -55,6 +56,10 @@
                 <button class="nav-btn" data-section="breaks">
                     <span class="nav-icon">🧘</span>
                     <span class="nav-label">Breaks</span>
+                </button>
+                <button class="nav-btn" data-section="bodydoubling">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label">Body Doubling</span>
                 </button>
                 <button class="nav-btn" data-section="resources">
                     <span class="nav-icon">🔗</span>
@@ -583,6 +588,186 @@
                         </div>
                     </div>
                 </section>
+
+                <!-- Body Doubling Section -->
+                <section class="section" id="section-bodydoubling">
+                    <div class="bodydoubling-container">
+                        <!-- Profile Setup (First Time) -->
+                        <div class="bd-profile-setup" id="bdProfileSetup" style="display: none;">
+                            <div class="bd-welcome">
+                                <h2>👥 Welcome to Body Doubling!</h2>
+                                <p>Find study partners, schedule sessions, and stay accountable together. Let's set up your profile:</p>
+                            </div>
+                            
+                            <div class="bd-form">
+                                <div class="form-group">
+                                    <label>Display Name</label>
+                                    <input type="text" id="bdDisplayName" placeholder="What should others call you?" maxlength="30">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Timezone</label>
+                                    <select id="bdTimezone"></select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Study Interests (Select all that apply)</label>
+                                    <div class="checkbox-grid">
+                                        <label class="checkbox-item"><input type="checkbox" value="math"> 📐 Math</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="science"> 🔬 Science</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="languages"> 🗣️ Languages</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="programming"> 💻 Programming</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="arts"> 🎨 Arts</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="business"> 💼 Business</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="writing"> ✍️ Writing</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="other"> 📚 Other</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Preferred Session Length</label>
+                                    <select id="bdSessionLength">
+                                        <option value="25">25 minutes (Pomodoro)</option>
+                                        <option value="50" selected>50 minutes</option>
+                                        <option value="90">90 minutes</option>
+                                        <option value="120">2 hours</option>
+                                    </select>
+                                </div>
+                                
+                                <button class="btn btn-primary" id="bdCreateProfile">Create Profile & Get Started</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Main Body Doubling Interface -->
+                        <div class="bd-main" id="bdMain">
+                            <div class="bd-tabs">
+                                <button class="bd-tab active" data-tab="find">🔍 Find Partners</button>
+                                <button class="bd-tab" data-tab="scheduled">📅 My Sessions</button>
+                                <button class="bd-tab" data-tab="active">🎥 Active Session</button>
+                            </div>
+                            
+                            <!-- Find Partners Tab -->
+                            <div class="bd-tab-content active" id="bdTabFind">
+                                <div class="bd-filters">
+                                    <div class="filter-group">
+                                        <label>Interests:</label>
+                                        <select id="bdFilterInterests">
+                                            <option value="">All</option>
+                                            <option value="math">Math</option>
+                                            <option value="science">Science</option>
+                                            <option value="languages">Languages</option>
+                                            <option value="programming">Programming</option>
+                                            <option value="arts">Arts</option>
+                                            <option value="business">Business</option>
+                                            <option value="writing">Writing</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label>Availability:</label>
+                                        <select id="bdFilterTime">
+                                            <option value="">Anytime</option>
+                                            <option value="now">Available Now</option>
+                                            <option value="today">Today</option>
+                                            <option value="week">This Week</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-secondary" id="bdRefreshPartners">🔄 Refresh</button>
+                                </div>
+                                
+                                <div class="bd-partners-grid" id="bdPartnersGrid">
+                                    <!-- Partner cards will be inserted here -->
+                                    <div class="bd-empty-state">
+                                        <span class="empty-icon">👥</span>
+                                        <p>Loading partners...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- My Sessions Tab -->
+                            <div class="bd-tab-content" id="bdTabScheduled">
+                                <div class="bd-session-controls">
+                                    <button class="btn btn-primary" id="bdQuickMatch">⚡ Quick Match Now</button>
+                                    <button class="btn btn-secondary" id="bdScheduleSession">📅 Schedule for Later</button>
+                                </div>
+                                
+                                <div class="bd-sessions-list" id="bdSessionsList">
+                                    <div class="bd-empty-state">
+                                        <span class="empty-icon">📅</span>
+                                        <p>No upcoming sessions. Find a partner or quick match to get started!</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Active Session Tab -->
+                            <div class="bd-tab-content" id="bdTabActive">
+                                <div class="bd-no-session" id="bdNoSession">
+                                    <div class="bd-empty-state">
+                                        <span class="empty-icon">🎥</span>
+                                        <p>No active session. Start a session to see it here!</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="bd-session-active" id="bdSessionActive" style="display: none;">
+                                    <!-- Video Call Area -->
+                                    <div class="bd-video-container">
+                                        <div class="bd-video-main">
+                                            <video id="bdRemoteVideo" autoplay playsinline></video>
+                                            <div class="bd-video-overlay">
+                                                <span class="bd-partner-name" id="bdPartnerNameOverlay">Partner</span>
+                                                <span class="bd-connection-status" id="bdConnectionStatus">🟢 Connected</span>
+                                            </div>
+                                        </div>
+                                        <div class="bd-video-self">
+                                            <video id="bdLocalVideo" autoplay playsinline muted></video>
+                                            <span class="bd-self-label">You</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Session Controls -->
+                                    <div class="bd-session-controls-bar">
+                                        <div class="bd-session-timer">
+                                            <span class="timer-icon">⏱️</span>
+                                            <span id="bdSessionTimer">00:00</span>
+                                        </div>
+                                        
+                                        <div class="bd-media-controls">
+                                            <button class="bd-control-btn" id="bdToggleMic" title="Mute/Unmute">
+                                                <span class="control-icon">🎤</span>
+                                            </button>
+                                            <button class="bd-control-btn" id="bdToggleVideo" title="Camera On/Off">
+                                                <span class="control-icon">📹</span>
+                                            </button>
+                                            <button class="bd-control-btn" id="bdToggleScreen" title="Share Screen">
+                                                <span class="control-icon">🖥️</span>
+                                            </button>
+                                            <button class="bd-control-btn" id="bdToggleChat" title="Toggle Chat">
+                                                <span class="control-icon">💬</span>
+                                            </button>
+                                            <button class="bd-control-btn danger" id="bdEndSession" title="End Session">
+                                                <span class="control-icon">📞</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Chat Sidebar -->
+                                    <div class="bd-chat-sidebar" id="bdChatSidebar" style="display: none;">
+                                        <div class="bd-chat-header">
+                                            <h3>💬 Session Chat</h3>
+                                            <button class="bd-close-chat" id="bdCloseChat">✕</button>
+                                        </div>
+                                        <div class="bd-chat-messages" id="bdChatMessages"></div>
+                                        <div class="bd-chat-input">
+                                            <input type="text" id="bdChatInput" placeholder="Type a message...">
+                                            <button id="bdSendChat">Send</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
                 <!-- Resources Section -->
                 <section class="section" id="section-resources">
                     <div class="resources-intro">
