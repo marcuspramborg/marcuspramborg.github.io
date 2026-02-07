@@ -277,6 +277,12 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--b
 .message .avatar { font-size: 1.5rem; flex-shrink: 0; }
 .message .bubble { background: var(--bg-alt); padding: 0.875rem 1rem; border-radius: var(--radius); max-width: 80%; }
 .message.user .bubble { background: var(--primary); color: white; }
+.message .bubble p { margin: 0; line-height: 1.6; }
+.message .bubble strong { font-weight: 600; color: var(--primary); }
+.message.user .bubble strong { color: rgba(255, 255, 255, 0.95); font-weight: 700; }
+.message .bubble em { font-style: italic; }
+.message .bubble code { background: rgba(0, 0, 0, 0.1); padding: 0.125rem 0.375rem; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.9em; }
+.message.user .bubble code { background: rgba(255, 255, 255, 0.2); }
 .typing-bubble { display: flex; gap: 0.25rem; align-items: center; padding: 1rem; }
 .typing-dot { width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%; animation: typingDot 1.4s infinite; }
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }

@@ -1041,7 +1041,11 @@ function addChatBubble(text, isUser) {
     const container = document.getElementById('chatMessages');
     const div = document.createElement('div');
     div.className = `message ${isUser ? 'user' : 'bot'}`;
-    div.innerHTML = `<span class="avatar">${isUser ? '👤' : '🤖'}</span><div class="bubble"><p>${escapeHtml(text)}</p></div>`;
+    
+    // Use parseMarkdown for bot messages to render formatting, escapeHtml for user messages
+    const formattedText = isUser ? escapeHtml(text) : parseMarkdown(text);
+    
+    div.innerHTML = `<span class="avatar">${isUser ? '👤' : '🤖'}</span><div class="bubble"><p>${formattedText}</p></div>`;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
 }
@@ -1630,6 +1634,32 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function parseMarkdown(text) {
+    // First escape HTML to prevent XSS attacks
+    let html = escapeHtml(text);
+    
+    // Convert markdown formatting to HTML
+    // Bold: **text** or __text__
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+    
+    // Italic: *text* or _text_
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+    
+    // Code: `code`
+    html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+    
+    // Line breaks: preserve newlines
+    html = html.replace(/\n/g, '<br>');
+    
+    // Emoji support (already works, but ensure spacing)
+    html = html.replace(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu, ' $1 ');
+    html = html.replace(/\s+/g, ' '); // Clean up extra spaces
+    
+    return html;
 }
 
 function formatDate(dateStr) {
