@@ -1,6 +1,6 @@
 # 🚀 AI Integration Setup Guide
 
-This guide will help you deploy FocusFlow with real AI capabilities using Vercel serverless functions.
+This guide will help you deploy Focus with real AI capabilities using Vercel serverless functions.
 
 ## 📋 Prerequisites
 
@@ -16,7 +16,7 @@ This guide will help you deploy FocusFlow with real AI capabilities using Vercel
 2. Click **"Sign Up"** or **"Login"** (can use Google/GitHub)
 3. Once logged in, you'll see the API Keys page
 4. Click **"Create API Key"**
-5. Give it a name like "FocusFlow" (optional)
+5. Give it a name like "Focus" (optional)
 6. Click **"Submit"**
 7. **IMPORTANT**: Copy the key immediately (starts with `gsk_...`)
    - It will only be shown once!
@@ -58,7 +58,7 @@ git push -u origin main
 #### 3.3: Configure Project Settings
 
 1. **Project Name**: Vercel auto-fills this (you can customize it)
-   - Example: `focusflow` or keep the default
+   - Example: `focus` or keep the default
    
 2. **Framework Preset**: Should auto-detect as "Other"
    - No need to change this
@@ -83,13 +83,13 @@ git push -u origin main
    - Build your project (takes 20-60 seconds)
    - Deploy to their global CDN
 3. When complete, you'll see: **"Congratulations! Your project has been successfully deployed."**
-4. You'll get a URL like: `focusflow-abc123.vercel.app`
+4. You'll get a URL like: `focus-abc123.vercel.app`
 5. Click **"Continue to Dashboard"**
 
 #### 3.5: Test Initial Deployment
 
 1. Click the URL or **"Visit"** button to open your site
-2. You should see your FocusFlow app working!
+2. You should see your Focus app working!
 3. **Note**: AI chat won't work yet (we need to add the API key next)
 
 ### Step 4: Add Environment Variable (Your API Key)
@@ -163,8 +163,8 @@ Environment variables are only loaded during deployment. Your running site doesn
 
 1. Go back to your Vercel project dashboard
 2. At the top, you'll see a "Visit" button with your site URL
-3. Click it to open your live FocusFlow app
-4. Alternatively, visit the URL directly (e.g., `focusflow-abc123.vercel.app`)
+3. Click it to open your live Focus app
+4. Alternatively, visit the URL directly (e.g., `focus-abc123.vercel.app`)
 
 #### 6.2: Navigate to AI Helper
 
@@ -332,7 +332,7 @@ USE_AI: false  // Falls back to rule-based responses
 
 ## 🎉 You're All Set!
 
-Your FocusFlow app now has real AI capabilities! The AI will:
+Your Focus app now has real AI capabilities! The AI will:
 - Remember conversation context
 - Provide ADHD-friendly advice
 - Break down complex tasks

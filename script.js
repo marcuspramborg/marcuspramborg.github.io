@@ -1,4 +1,4 @@
-/* FocusFlow - Complete JavaScript Application */
+/* Focus - Complete JavaScript Application */
 
 // ============================================
 // STATE
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function loadState() {
     try {
-        const saved = localStorage.getItem('focusflow');
+        const saved = localStorage.getItem('focus');
         if (saved) {
             const data = JSON.parse(saved);
             state.notes = data.notes || [];
@@ -99,7 +99,7 @@ function loadState() {
 }
 
 function saveState() {
-    localStorage.setItem('focusflow', JSON.stringify({
+    localStorage.setItem('focus', JSON.stringify({
         notes: state.notes,
         events: state.events,
         tasks: state.tasks,
@@ -310,7 +310,7 @@ function showSection(id) {
         calendar: 'Calendar', sounds: 'Focus Sounds', tts: 'Text-to-Speech',
         ai: 'AI Study Assistant', canvas: 'Quick Sketch', breaks: 'Sensory Breaks',
         resources: 'External Resources'
-    }[id] || 'FocusFlow';
+    }[id] || 'Focus';
 
     // Close mobile sidebar
     document.getElementById('sidebar')?.classList.remove('show');
@@ -364,7 +364,7 @@ function updateTimerDisplay() {
     
     document.getElementById('timerTime').textContent = display;
     document.getElementById('miniTime').textContent = display;
-    document.title = `${display} - FocusFlow`;
+    document.title = `${display} - Focus`;
     
     // Update progress rings
     const progress = 1 - (state.timer.remaining / state.timer.duration);
@@ -537,7 +537,7 @@ function exportNotes() {
         return;
     }
     const text = state.notes.map(n => `# ${n.title}\n\n${n.content}\n\n---\n`).join('\n');
-    downloadFile('focusflow-notes.md', text, 'text/markdown');
+    downloadFile('focus-notes.md', text, 'text/markdown');
     toast('Exported', 'Notes downloaded!', 'success');
 }
 
@@ -1309,7 +1309,7 @@ function clearCanvas() {
 
 function downloadCanvas() {
     const link = document.createElement('a');
-    link.download = 'focusflow-sketch.png';
+    link.download = 'focus-sketch.png';
     link.href = canvas.toDataURL();
     link.click();
     toast('Saved', 'Sketch downloaded!', 'success');
@@ -1855,8 +1855,8 @@ const bodyDoubling = {
         document.querySelectorAll('.bd-tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.bd-tab-content').forEach(c => c.classList.remove('active'));
         
-        document.querySelector('[data-tab="\${tabName}"]').classList.add('active');
-        document.getElementById('bdTab\${tabName.charAt(0).toUpperCase() + tabName.slice(1)}').classList.add('active');
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        document.getElementById(`bdTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
     },
     
     loadPartners() {
@@ -1896,20 +1896,20 @@ const bodyDoubling = {
         grid.innerHTML = partners.map(partner => `
             <div class="bd-partner-card">
                 <div class="bd-partner-header">
-                    <span class="bd-partner-name">\${partner.name}</span>
-                    <span class="bd-partner-status \${partner.status}">\${partner.status}</span>
+                    <span class="bd-partner-name">${partner.name}</span>
+                    <span class="bd-partner-status ${partner.status}">${partner.status}</span>
                 </div>
                 <div class="bd-partner-interests">
-                    \${partner.interests.map(interest => \`<span class="bd-interest-tag">\${interest}</span>\`).join('')}
+                    ${partner.interests.map(interest => `<span class="bd-interest-tag">${interest}</span>`).join('')}
                 </div>
                 <div class="bd-partner-info">
-                    ⏰ \${partner.timezone} • Prefers \${partner.sessionLength}min sessions
+                    ⏰ ${partner.timezone} • Prefers ${partner.sessionLength}min sessions
                 </div>
                 <div class="bd-partner-actions">
-                    <button class="btn btn-primary" onclick="bodyDoubling.connectToPartner('\${partner.id}')" \${partner.status !== 'available' ? 'disabled' : ''}>
-                        \${partner.status === 'available' ? '📞 Call Now' : '💬 Message'}
+                    <button class="btn btn-primary" onclick="bodyDoubling.connectToPartner('${partner.id}')" ${partner.status !== 'available' ? 'disabled' : ''}>
+                        ${partner.status === 'available' ? '📞 Call Now' : '💬 Message'}
                     </button>
-                    <button class="btn btn-secondary" onclick="bodyDoubling.scheduleWithPartner('\${partner.id}')">
+                    <button class="btn btn-secondary" onclick="bodyDoubling.scheduleWithPartner('${partner.id}')">
                         📅 Schedule
                     </button>
                 </div>
@@ -1918,7 +1918,7 @@ const bodyDoubling = {
     },
     
     quickMatch() {
-        alert('🔍 Finding you a study partner...\\n\\nIn a full implementation, this would:\\n• Match you with available partners\\n• Consider your interests and timezone\\n• Start a session immediately\\n\\nFor now, try selecting a partner from the "Find Partners" tab!');
+        alert('🔍 Finding you a study partner...\n\nIn a full implementation, this would:\n• Match you with available partners\n• Consider your interests and timezone\n• Start a session immediately\n\nFor now, try selecting a partner from the "Find Partners" tab!');
     },
     
     scheduleSession() {
@@ -1960,12 +1960,12 @@ const bodyDoubling = {
         container.innerHTML = sessions.map(session => `
             <div class="bd-session-card">
                 <div class="bd-session-header">
-                    <span class="bd-session-partner">👤 \${session.partner}</span>
+                    <span class="bd-session-partner">👤 ${session.partner}</span>
                 </div>
-                <div class="bd-session-time">📅 \${session.dateTime} • \${session.duration} minutes</div>
+                <div class="bd-session-time">📅 ${session.dateTime} • ${session.duration} minutes</div>
                 <div class="bd-session-actions">
-                    <button class="btn btn-primary" onclick="bodyDoubling.joinSession('\${session.id}')">Join Session</button>
-                    <button class="btn btn-secondary" onclick="bodyDoubling.cancelSession('\${session.id}')">Cancel</button>
+                    <button class="btn btn-primary" onclick="bodyDoubling.joinSession('${session.id}')">Join Session</button>
+                    <button class="btn btn-secondary" onclick="bodyDoubling.cancelSession('${session.id}')">Cancel</button>
                 </div>
             </div>
         `).join('');
@@ -2076,7 +2076,7 @@ const bodyDoubling = {
             const minutes = Math.floor(elapsed / 60);
             const seconds = elapsed % 60;
             document.getElementById('bdSessionTimer').textContent = 
-                `\${minutes.toString().padStart(2, '0')}:\${seconds.toString().padStart(2, '0')}`;
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }, 1000);
     },
     
@@ -2163,7 +2163,7 @@ const bodyDoubling = {
     displayChatMessage(text, isSelf) {
         const container = document.getElementById('bdChatMessages');
         const div = document.createElement('div');
-        div.className = `bd-chat-message \${isSelf ? 'self' : 'other'}`;
+        div.className = `bd-chat-message ${isSelf ? 'self' : 'other'}`;
         div.textContent = text;
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
@@ -2200,7 +2200,7 @@ const bodyDoubling = {
     },
     
     joinSession(sessionId) {
-        alert(`Joining session \${sessionId}...\\n\\nIn production, this would connect you to your scheduled partner.`);
+        alert(`Joining session ${sessionId}...\n\nIn production, this would connect you to your scheduled partner.`);
     },
     
     cancelSession(sessionId) {
