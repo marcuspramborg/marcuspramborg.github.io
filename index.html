@@ -24,6 +24,10 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-label">Dashboard</span>
                 </button>
+                <button class="nav-btn" data-section="ai">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-label">AI Helper</span>
+                </button>
                 <button class="nav-btn" data-section="timer">
                     <span class="nav-icon">⏱️</span>
                     <span class="nav-label">Timer</span>
@@ -44,10 +48,6 @@
                     <span class="nav-icon">🔊</span>
                     <span class="nav-label">Read Aloud</span>
                 </button>
-                <button class="nav-btn" data-section="ai">
-                    <span class="nav-icon">🤖</span>
-                    <span class="nav-label">AI Helper</span>
-                </button>
                 <button class="nav-btn" data-section="canvas">
                     <span class="nav-icon">🎨</span>
                     <span class="nav-label">Sketch</span>
@@ -55,6 +55,10 @@
                 <button class="nav-btn" data-section="breaks">
                     <span class="nav-icon">🧘</span>
                     <span class="nav-label">Breaks</span>
+                </button>
+                <button class="nav-btn" data-section="resources">
+                    <span class="nav-icon">🔗</span>
+                    <span class="nav-label">Resources</span>
                 </button>
             </nav>
             
@@ -209,6 +213,42 @@
                     </div>
                 </section>
                 
+                <!-- AI Section -->
+                <section class="section" id="section-ai">
+                    <div class="ai-page">
+                        <div class="ai-header">
+                            <div class="ai-avatar-large">🤖</div>
+                            <div>
+                                <h2>AI Study Assistant</h2>
+                                <p>Your friendly, encouraging study companion</p>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-quick-actions">
+                            <button class="quick-btn" data-action="motivate">💪 Motivate Me</button>
+                            <button class="quick-btn" data-action="studyTip">💡 Study Tip</button>
+                            <button class="quick-btn" data-action="breakTime">🧘 Break Ideas</button>
+                            <button class="quick-btn" data-action="pomodoro">🍅 Pomodoro Info</button>
+                        </div>
+                        
+                        <div class="chat-container" id="chatContainer">
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message bot">
+                                    <span class="avatar">🤖</span>
+                                    <div class="bubble">
+                                        <p>Hi there! 👋 I'm your AI study buddy. I'm here to help you stay focused, motivated, and on track. Ask me anything!</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chatInput" placeholder="Ask me anything..." maxlength="500">
+                                <button class="btn primary" id="chatSendBtn">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
                 <!-- Timer Section -->
                 <section class="section" id="section-timer">
                     <div class="timer-page">
@@ -426,40 +466,7 @@
                     </div>
                 </section>
                 
-                <!-- AI Section -->
-                <section class="section" id="section-ai">
-                    <div class="ai-page">
-                        <div class="ai-header">
-                            <div class="ai-avatar-large">🤖</div>
-                            <div>
-                                <h2>AI Study Assistant</h2>
-                                <p>Your friendly, encouraging study companion</p>
-                            </div>
-                        </div>
-                        
-                        <div class="ai-quick-actions">
-                            <button class="quick-btn" data-action="motivate">💪 Motivate Me</button>
-                            <button class="quick-btn" data-action="studyTip">💡 Study Tip</button>
-                            <button class="quick-btn" data-action="breakTime">🧘 Break Ideas</button>
-                            <button class="quick-btn" data-action="pomodoro">🍅 Pomodoro Info</button>
-                        </div>
-                        
-                        <div class="chat-container" id="chatContainer">
-                            <div class="chat-messages" id="chatMessages">
-                                <div class="message bot">
-                                    <span class="avatar">🤖</span>
-                                    <div class="bubble">
-                                        <p>Hi there! 👋 I'm your AI study buddy. I'm here to help you stay focused, motivated, and on track. Ask me anything!</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="chat-input-area">
-                                <input type="text" id="chatInput" placeholder="Ask me anything..." maxlength="500">
-                                <button class="btn primary" id="chatSendBtn">Send</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                
                 
                 <!-- Canvas Section -->
                 <section class="section" id="section-canvas">
@@ -471,6 +478,7 @@
                                 <button class="tool-btn" data-tool="line" title="Line">📏</button>
                                 <button class="tool-btn" data-tool="rect" title="Rectangle">▭</button>
                                 <button class="tool-btn" data-tool="circle" title="Circle">◯</button>
+                                <button class="tool-btn" data-tool="text" title="Text">T</button>
                             </div>
                             <div class="tool-group">
                                 <label>Size: <input type="range" id="brushSize" min="1" max="30" value="3"></label>
@@ -575,7 +583,511 @@
                         </div>
                     </div>
                 </section>
-            </div>
+                <!-- Resources Section -->
+                <section class="section" id="section-resources">
+                    <div class="resources-intro">
+                        <h2>🛠️ External Tools & Resources</h2>
+                        <p>Curated collection of apps and tools designed to help students with ADHD, ADD, and anyone looking to boost productivity and focus.</p>
+                    </div>
+
+                    <div class="resources-grid">
+                        <!-- AI Study Assistants -->
+                        <div class="resource-category">
+                            <h3>🤖 AI Study Assistants</h3>
+                            <div class="resource-list">
+                                <a href="https://notebooklm.google.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📓</span>
+                                    <div class="resource-info">
+                                        <h4>NotebookLM</h4>
+                                        <p>Google's AI notebook that summarizes documents, answers questions, and creates study guides from your materials.</p>
+                                    </div>
+                                </a>
+                                <a href="https://chat.openai.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">💬</span>
+                                    <div class="resource-info">
+                                        <h4>ChatGPT</h4>
+                                        <p>AI assistant for explaining concepts, breaking down complex topics, and creating practice questions.</p>
+                                    </div>
+                                </a>
+                                <a href="https://claude.ai" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🧠</span>
+                                    <div class="resource-info">
+                                        <h4>Claude</h4>
+                                        <p>Thoughtful AI assistant excellent for analysis, writing help, and step-by-step explanations.</p>
+                                    </div>
+                                </a>
+                                <a href="https://perplexity.ai" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🔍</span>
+                                    <div class="resource-info">
+                                        <h4>Perplexity</h4>
+                                        <p>AI-powered research tool that finds and summarizes information with cited sources.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Text-to-Speech & Reading -->
+                        <div class="resource-category">
+                            <h3>🔊 Text-to-Speech & Reading</h3>
+                            <div class="resource-list">
+                                <a href="https://speechify.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🗣️</span>
+                                    <div class="resource-info">
+                                        <h4>Speechify</h4>
+                                        <p>Premium text-to-speech with natural voices. Great for reading PDFs, articles, and documents aloud.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.naturalreaders.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📖</span>
+                                    <div class="resource-info">
+                                        <h4>Natural Reader</h4>
+                                        <p>Free text-to-speech with OCR support for images and scanned documents.</p>
+                                    </div>
+                                </a>
+                                <a href="https://otter.ai" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🎙️</span>
+                                    <div class="resource-info">
+                                        <h4>Otter.ai</h4>
+                                        <p>AI transcription for lectures and meetings. Converts speech to searchable, shareable notes.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.beelinereader.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🌈</span>
+                                    <div class="resource-info">
+                                        <h4>BeeLine Reader</h4>
+                                        <p>Color gradient technology that guides your eyes and reduces reading fatigue.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Flashcards & Active Learning -->
+                        <div class="resource-category">
+                            <h3>🃏 Flashcards & Active Learning</h3>
+                            <div class="resource-list">
+                                <a href="https://apps.ankiweb.net" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📚</span>
+                                    <div class="resource-info">
+                                        <h4>Anki</h4>
+                                        <p>Spaced repetition flashcards proven to improve long-term memory. Free and highly customizable.</p>
+                                    </div>
+                                </a>
+                                <a href="https://quizlet.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🎴</span>
+                                    <div class="resource-info">
+                                        <h4>Quizlet</h4>
+                                        <p>Popular flashcard platform with games, tests, and millions of pre-made study sets.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.remnote.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🔗</span>
+                                    <div class="resource-info">
+                                        <h4>RemNote</h4>
+                                        <p>Notes that automatically become flashcards. Combines note-taking with spaced repetition.</p>
+                                    </div>
+                                </a>
+                                <a href="https://kahoot.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🎮</span>
+                                    <div class="resource-info">
+                                        <h4>Kahoot!</h4>
+                                        <p>Game-based learning platform. Make studying fun with quizzes and challenges.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Note-Taking & Organization -->
+                        <div class="resource-category">
+                            <h3>📝 Note-Taking & Organization</h3>
+                            <div class="resource-list">
+                                <a href="https://notion.so" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📋</span>
+                                    <div class="resource-info">
+                                        <h4>Notion</h4>
+                                        <p>All-in-one workspace for notes, databases, wikis, and project management. Highly flexible.</p>
+                                    </div>
+                                </a>
+                                <a href="https://obsidian.md" target="_blank" class="resource-card">
+                                    <span class="resource-icon">💎</span>
+                                    <div class="resource-info">
+                                        <h4>Obsidian</h4>
+                                        <p>Linked note-taking for building a personal knowledge base. Great for connecting ideas.</p>
+                                    </div>
+                                </a>
+                                <a href="https://roamresearch.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🌐</span>
+                                    <div class="resource-info">
+                                        <h4>Roam Research</h4>
+                                        <p>Networked thought tool perfect for non-linear thinking and research.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.goodnotes.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">✏️</span>
+                                    <div class="resource-info">
+                                        <h4>GoodNotes</h4>
+                                        <p>Digital handwriting app for iPad. Great for visual learners who prefer writing by hand.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Focus Music & Sounds -->
+                        <div class="resource-category">
+                            <h3>🎧 Focus Music & Sounds</h3>
+                            <div class="resource-list">
+                                <a href="https://brain.fm" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🧠</span>
+                                    <div class="resource-info">
+                                        <h4>Brain.fm</h4>
+                                        <p>AI-generated music scientifically designed to enhance focus, relaxation, and sleep.</p>
+                                    </div>
+                                </a>
+                                <a href="https://endel.io" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🌊</span>
+                                    <div class="resource-info">
+                                        <h4>Endel</h4>
+                                        <p>Personalized soundscapes that adapt to your time, weather, and heart rate.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.focusatwill.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🎵</span>
+                                    <div class="resource-info">
+                                        <h4>Focus@Will</h4>
+                                        <p>Neuroscience-based music channels optimized for different ADHD types.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.noisli.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🔉</span>
+                                    <div class="resource-info">
+                                        <h4>Noisli</h4>
+                                        <p>Mix ambient sounds to create your perfect focus environment.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Focus & Productivity Apps -->
+                        <div class="resource-category">
+                            <h3>🌳 Focus & Gamification</h3>
+                            <div class="resource-list">
+                                <a href="https://www.forestapp.cc" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🌲</span>
+                                    <div class="resource-info">
+                                        <h4>Forest</h4>
+                                        <p>Stay focused by growing virtual trees. Leave your phone and watch your forest grow!</p>
+                                    </div>
+                                </a>
+                                <a href="https://flora.appfinca.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🌸</span>
+                                    <div class="resource-info">
+                                        <h4>Flora</h4>
+                                        <p>Similar to Forest with social features. Challenge friends and grow together.</p>
+                                    </div>
+                                </a>
+                                <a href="https://habitica.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">⚔️</span>
+                                    <div class="resource-info">
+                                        <h4>Habitica</h4>
+                                        <p>Turn your life into an RPG game. Complete tasks to level up your character!</p>
+                                    </div>
+                                </a>
+                                <a href="https://beedone.co/sv/" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🐝</span>
+                                    <div class="resource-info">
+                                        <h4>BeeDone</h4>
+                                        <p>AI-powered productivity app that turns tasks into games with rewards.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Website & App Blockers -->
+                        <div class="resource-category">
+                            <h3>🚫 Distraction Blockers</h3>
+                            <div class="resource-list">
+                                <a href="https://freedom.to" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🔒</span>
+                                    <div class="resource-info">
+                                        <h4>Freedom</h4>
+                                        <p>Block distracting apps and websites across all your devices simultaneously.</p>
+                                    </div>
+                                </a>
+                                <a href="https://getcoldturkey.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🦃</span>
+                                    <div class="resource-info">
+                                        <h4>Cold Turkey</h4>
+                                        <p>Powerful blocker that's nearly impossible to bypass. For serious focus needs.</p>
+                                    </div>
+                                </a>
+                                <a href="https://chrome.google.com/webstore/detail/stayfocusd" target="_blank" class="resource-card">
+                                    <span class="resource-icon">⏰</span>
+                                    <div class="resource-info">
+                                        <h4>StayFocusd</h4>
+                                        <p>Free Chrome extension to limit time on time-wasting websites.</p>
+                                    </div>
+                                </a>
+                                <a href="https://addons.mozilla.org/en-CA/android/addon/leechblock-ng/" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🛡️</span>
+                                    <div class="resource-info">
+                                        <h4>LeechBlock</h4>
+                                        <p>Free Firefox extension with flexible blocking rules and schedules.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Body Doubling & Accountability -->
+                        <div class="resource-category">
+                            <h3>👥 Body Doubling & Accountability</h3>
+                            <div class="resource-list">
+                                <a href="https://www.focusmate.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">👤</span>
+                                    <div class="resource-info">
+                                        <h4>Focusmate</h4>
+                                        <p>Virtual coworking with accountability partners. Book 25 or 50 minute sessions.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.flow.club" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🌊</span>
+                                    <div class="resource-info">
+                                        <h4>Flow Club</h4>
+                                        <p>Group focus sessions hosted by facilitators. Great community energy.</p>
+                                    </div>
+                                </a>
+                                <a href="https://caveday.org" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🏔️</span>
+                                    <div class="resource-info">
+                                        <h4>Caveday</h4>
+                                        <p>Facilitated deep work sessions with structured sprints and breaks.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.studystream.live" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📺</span>
+                                    <div class="resource-info">
+                                        <h4>StudyStream</h4>
+                                        <p>24/7 virtual study rooms with students worldwide. Free body doubling!</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Task Management -->
+                        <div class="resource-category">
+                            <h3>✅ Task Management</h3>
+                            <div class="resource-list">
+                                <a href="https://todoist.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">☑️</span>
+                                    <div class="resource-info">
+                                        <h4>Todoist</h4>
+                                        <p>Clean, powerful task manager with natural language input and projects.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.tiimo.dk" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📊</span>
+                                    <div class="resource-info">
+                                        <h4>Tiimo</h4>
+                                        <p>Visual daily planner designed specifically for ADHD and autism. Highly recommended!</p>
+                                    </div>
+                                </a>
+                                <a href="https://goblin.tools" target="_blank" class="resource-card">
+                                    <span class="resource-icon">👺</span>
+                                    <div class="resource-info">
+                                        <h4>Goblin Tools</h4>
+                                        <p>AI tools for neurodivergent minds. Magic ToDo breaks tasks into small steps.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.any.do" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📱</span>
+                                    <div class="resource-info">
+                                        <h4>Any.do</h4>
+                                        <p>Simple task manager with daily planner and calendar integration.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.sunsama.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">☀️</span>
+                                    <div class="resource-info">
+                                        <h4>Sunsama</h4>
+                                        <p>Daily planner that helps you plan realistic days and avoid overwhelm.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Time Tracking -->
+                        <div class="resource-category">
+                            <h3>⏱️ Time Tracking</h3>
+                            <div class="resource-list">
+                                <a href="https://toggl.com/track" target="_blank" class="resource-card">
+                                    <span class="resource-icon">⏲️</span>
+                                    <div class="resource-info">
+                                        <h4>Toggl Track</h4>
+                                        <p>Simple time tracking to understand where your time actually goes.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.rescuetime.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📈</span>
+                                    <div class="resource-info">
+                                        <h4>RescueTime</h4>
+                                        <p>Automatic time tracking that shows your digital habits and productivity.</p>
+                                    </div>
+                                </a>
+                                <a href="https://clockify.me" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🕐</span>
+                                    <div class="resource-info">
+                                        <h4>Clockify</h4>
+                                        <p>Free time tracker with unlimited tracking and detailed reports.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Academic & Research -->
+                        <div class="resource-category">
+                            <h3>🎓 Academic & Research</h3>
+                            <div class="resource-list">
+                                <a href="https://www.zotero.org" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📚</span>
+                                    <div class="resource-info">
+                                        <h4>Zotero</h4>
+                                        <p>Free reference manager. Collect, organize, and cite research sources easily.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.mendeley.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📑</span>
+                                    <div class="resource-info">
+                                        <h4>Mendeley</h4>
+                                        <p>Reference manager with PDF annotation and academic social network.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.mystudylife.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🎒</span>
+                                    <div class="resource-info">
+                                        <h4>MyStudyLife</h4>
+                                        <p>Student planner for classes, homework, and exams. Syncs across devices.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.grammarly.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">✍️</span>
+                                    <div class="resource-info">
+                                        <h4>Grammarly</h4>
+                                        <p>AI writing assistant for grammar, clarity, and tone. Essential for papers!</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Visual Thinking -->
+                        <div class="resource-category">
+                            <h3>🎨 Visual Thinking & Diagrams</h3>
+                            <div class="resource-list">
+                                <a href="https://excalidraw.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">✏️</span>
+                                    <div class="resource-info">
+                                        <h4>Excalidraw</h4>
+                                        <p>Free virtual whiteboard for sketching diagrams with a hand-drawn feel.</p>
+                                    </div>
+                                </a>
+                                <a href="https://miro.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📌</span>
+                                    <div class="resource-info">
+                                        <h4>Miro</h4>
+                                        <p>Collaborative whiteboard for mind maps, diagrams, and brainstorming.</p>
+                                    </div>
+                                </a>
+                                <a href="https://whimsical.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">💭</span>
+                                    <div class="resource-info">
+                                        <h4>Whimsical</h4>
+                                        <p>Clean flowcharts, wireframes, and mind maps. Great for visual planning.</p>
+                                    </div>
+                                </a>
+                                <a href="https://coggle.it" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🕸️</span>
+                                    <div class="resource-info">
+                                        <h4>Coggle</h4>
+                                        <p>Beautiful, collaborative mind maps. Perfect for brainstorming and revision.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Mindfulness & Wellness -->
+                        <div class="resource-category">
+                            <h3>🧘 Mindfulness & Wellness</h3>
+                            <div class="resource-list">
+                                <a href="https://www.calm.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🌙</span>
+                                    <div class="resource-info">
+                                        <h4>Calm</h4>
+                                        <p>Meditation, sleep stories, and breathing exercises for stress relief.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.headspace.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🧡</span>
+                                    <div class="resource-info">
+                                        <h4>Headspace</h4>
+                                        <p>Guided meditation with focus-specific sessions and sleep content.</p>
+                                    </div>
+                                </a>
+                                <a href="https://insighttimer.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🔔</span>
+                                    <div class="resource-info">
+                                        <h4>Insight Timer</h4>
+                                        <p>Free meditation app with 150,000+ guided meditations and music tracks.</p>
+                                    </div>
+                                </a>
+                                <a href="https://finchcare.com/" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🐦</span>
+                                    <div class="resource-info">
+                                        <h4>Finch</h4>
+                                        <p>Self-care pet app. Complete wellness tasks to grow your virtual bird!</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Browser Extensions -->
+                        <div class="resource-category">
+                            <h3>🔌 Helpful Browser Extensions</h3>
+                            <div class="resource-list">
+                                <a href="https://www.one-tab.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">📑</span>
+                                    <div class="resource-info">
+                                        <h4>OneTab</h4>
+                                        <p>Convert all tabs into a list to reduce clutter and save memory.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.momentum.cc" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🌅</span>
+                                    <div class="resource-info">
+                                        <h4>Momentum</h4>
+                                        <p>Beautiful new tab page with daily focus, to-do list, and inspiration.</p>
+                                    </div>
+                                </a>
+                                <a href="https://darkreader.org" target="_blank" class="resource-card">
+                                    <span class="resource-icon">🌓</span>
+                                    <div class="resource-info">
+                                        <h4>Dark Reader</h4>
+                                        <p>Dark mode for every website. Reduces eye strain during long study sessions.</p>
+                                    </div>
+                                </a>
+                                <a href="https://www.bionic-reading.com" target="_blank" class="resource-card">
+                                    <span class="resource-icon">👁️</span>
+                                    <div class="resource-info">
+                                        <h4>Bionic Reading</h4>
+                                        <p>Highlights key letters in words to guide eyes and improve reading speed.</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="resources-tip">
+                        <span>💡</span>
+                        <p><strong>Pro Tip:</strong> Don't try all these tools at once! Pick 1-2 from each category that match your needs, try them for a week, and keep what works for your brain.</p>
+                    </div>
+                </section>            </div>
         </main>
     </div>
     

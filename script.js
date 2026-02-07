@@ -12,7 +12,7 @@ const state = {
     audioCtx: null,
     audioNodes: {},
     tts: { playing: false },
-    canvas: { tool: 'pen', color: '#667eea', size: 3, drawing: false, history: [], historyIdx: -1 },
+    canvas: { tool: 'pen', color: '#667eea', size: 3, drawing: false, history: [], historyIdx: -1, startX: 0, startY: 0, snapshot: null },
     settings: { theme: 'calm', highContrast: false, reducedMotion: false },
     rewards: { points: 0, streak: 0, lastActive: null, badges: [] },
     breaks: { breathing: false, stretching: false, eyeRest: false, grounding: { active: false, step: 0 } },
@@ -308,7 +308,8 @@ function showSection(id) {
     document.getElementById('pageTitle').textContent = {
         dashboard: 'Dashboard', timer: 'Focus Timer', notes: 'Quick Notes',
         calendar: 'Calendar', sounds: 'Focus Sounds', tts: 'Text-to-Speech',
-        ai: 'AI Study Assistant', canvas: 'Quick Sketch', breaks: 'Sensory Breaks'
+        ai: 'AI Study Assistant', canvas: 'Quick Sketch', breaks: 'Sensory Breaks',
+        resources: 'External Resources'
     }[id] || 'FocusFlow';
 
     // Close mobile sidebar
@@ -642,8 +643,20 @@ function renderCalendar() {
     for (let day = 1; day <= lastDay.getDate(); day++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-        const hasEvent = state.events.some(e => e.date === dateStr);
-        html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}" data-date="${dateStr}">${day}</div>`;
+        const dayEvents = state.events.filter(e => e.date === dateStr);
+        const hasEvent = dayEvents.length > 0;
+        
+        let eventPreview = '';
+        if (dayEvents.length > 0) {
+            const firstEvent = dayEvents[0];
+            const icons = { exam: '📚', assignment: '📝', study: '📖', reminder: '⏰' };
+            eventPreview = `<span class="event-preview" title="${escapeHtml(firstEvent.title)}">${icons[firstEvent.category] || '📌'}</span>`;
+        }
+        
+        html += `<div class="calendar-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}" data-date="${dateStr}">
+            <span class="day-number">${day}</span>
+            ${eventPreview}
+        </div>`;
     }
     
     // Next month
@@ -698,15 +711,23 @@ function renderEvents() {
     }
     
     const icons = { exam: '📚', assignment: '📝', study: '📖', reminder: '⏰' };
-    list.innerHTML = upcoming.map(e => `
+    list.innerHTML = upcoming.map(e => {
+        const eventDate = new Date(e.date);
+        const formattedDate = eventDate.toLocaleDateString('en-US', { 
+            weekday: 'short',
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+        });
+        return `
         <div class="event-item">
             <span>${icons[e.category] || '📌'}</span>
             <div class="event-details">
                 <div class="event-title">${escapeHtml(e.title)}</div>
-                <div class="event-date">${formatDate(e.date)} ${e.time || ''}</div>
+                <div class="event-date">${formattedDate} ${e.time ? 'at ' + e.time : ''}</div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 // ============================================
@@ -904,7 +925,27 @@ function handleTTSFile(e) {
 // ============================================
 // AI CHAT
 // ============================================
-function sendChatMessage() {
+
+// Configuration
+const AI_CONFIG = {
+    // Change this to your Vercel deployment URL once deployed
+    // For local development, use: 'http://localhost:3000/api/chat'
+    // For production, use: 'https://your-app.vercel.app/api/chat'
+    API_URL: window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000/api/chat'
+        : '/api/chat', // Uses relative URL for same domain
+    
+    // Set to true to use real AI, false to use fallback responses
+    USE_AI: true,
+    
+    // Maximum conversation history to send (to manage token costs)
+    MAX_HISTORY: 6
+};
+
+// Store conversation history
+let conversationHistory = [];
+
+async function sendChatMessage() {
     const input = document.getElementById('chatInput');
     const msg = input.value.trim();
     if (!msg) return;
@@ -912,10 +953,88 @@ function sendChatMessage() {
     addChatBubble(msg, true);
     input.value = '';
     
-    setTimeout(() => {
-        const response = generateResponse(msg);
-        addChatBubble(response, false);
-    }, 500);
+    // Add to conversation history
+    conversationHistory.push({ role: 'user', content: msg });
+    
+    // Add typing indicator
+    const typingDiv = addTypingIndicator();
+    
+    if (AI_CONFIG.USE_AI) {
+        await sendAIMessage(msg, typingDiv);
+    } else {
+        // Fallback to rule-based responses
+        setTimeout(() => {
+            const response = generateResponse(msg);
+            typingDiv.remove();
+            addChatBubble(response, false);
+            conversationHistory.push({ role: 'assistant', content: response });
+        }, 500);
+    }
+}
+
+async function sendAIMessage(message, typingDiv) {
+    try {
+        const response = await fetch(AI_CONFIG.API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message,
+                conversationHistory: conversationHistory.slice(-AI_CONFIG.MAX_HISTORY)
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Server error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        typingDiv.remove();
+        
+        const aiResponse = data.response;
+        addChatBubble(aiResponse, false);
+        
+        // Add to conversation history
+        conversationHistory.push({ role: 'assistant', content: aiResponse });
+        
+        // Keep history manageable
+        if (conversationHistory.length > AI_CONFIG.MAX_HISTORY * 2) {
+            conversationHistory = conversationHistory.slice(-AI_CONFIG.MAX_HISTORY * 2);
+        }
+        
+    } catch (error) {
+        console.error('AI Chat Error:', error);
+        typingDiv.remove();
+        
+        // Show user-friendly error message
+        let errorMessage = '😅 Oops! I had trouble connecting. ';
+        
+        if (error.message.includes('API key')) {
+            errorMessage += 'The AI service needs to be configured. Using offline mode for now!';
+            // Fall back to rule-based response
+            const fallbackResponse = generateResponse(message);
+            addChatBubble(errorMessage, false);
+            setTimeout(() => addChatBubble(fallbackResponse, false), 1000);
+        } else if (error.message.includes('Rate limit')) {
+            errorMessage += 'Too many requests. Please wait a moment and try again.';
+            addChatBubble(errorMessage, false);
+        } else {
+            errorMessage += 'Please check your internet connection and try again.';
+            addChatBubble(errorMessage, false);
+        }
+    }
+}
+
+function addTypingIndicator() {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'message bot typing';
+    div.innerHTML = `<span class="avatar">🤖</span><div class="bubble typing-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return div;
 }
 
 function addChatBubble(text, isUser) {
@@ -962,6 +1081,15 @@ function initCanvas() {
     ctx = canvas.getContext('2d');
     
     resizeCanvas();
+    
+    // Save initial blank state after a brief delay to ensure canvas is ready
+    setTimeout(() => {
+        if (state.canvas.history.length === 0) {
+            saveCanvasState();
+        }
+        updateCanvasButtons();
+    }, 100);
+    
     window.addEventListener('resize', resizeCanvas);
     
     canvas.addEventListener('mousedown', startDraw);
@@ -972,47 +1100,137 @@ function initCanvas() {
     canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(getTouchPos(e)); });
     canvas.addEventListener('touchmove', e => { e.preventDefault(); draw(getTouchPos(e)); });
     canvas.addEventListener('touchend', endDraw);
-    
-    saveCanvasState();
 }
 
 function resizeCanvas() {
     if (!canvas) return;
     const container = canvas.parentElement;
+    
+    // Save current content if canvas has been initialized
+    const currentImage = state.canvas.history.length > 0 && state.canvas.historyIdx >= 0 
+        ? state.canvas.history[state.canvas.historyIdx]
+        : null;
+    
     canvas.width = container.offsetWidth;
     canvas.height = container.offsetHeight;
-    restoreCanvasState();
+    
+    // Restore the saved content
+    if (currentImage) {
+        const img = new Image();
+        img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+        img.src = currentImage;
+    }
 }
 
 function getTouchPos(e) {
     const rect = canvas.getBoundingClientRect();
-    return { offsetX: e.touches[0].clientX - rect.left, offsetY: e.touches[0].clientY - rect.top };
+    const touch = e.touches[0];
+    return { 
+        offsetX: touch.clientX - rect.left, 
+        offsetY: touch.clientY - rect.top,
+        pageX: touch.clientX,
+        pageY: touch.clientY
+    };
 }
 
 function startDraw(e) {
+    const x = e.offsetX !== undefined ? e.offsetX : e.pageX - canvas.offsetLeft;
+    const y = e.offsetY !== undefined ? e.offsetY : e.pageY - canvas.offsetTop;
+    
     state.canvas.drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
+    state.canvas.startX = x;
+    state.canvas.startY = y;
+    
+    // For shapes and text, save the current canvas state
+    if (['line', 'rect', 'circle', 'text'].includes(state.canvas.tool)) {
+        state.canvas.snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    }
+    
+    // For text tool, show prompt
+    if (state.canvas.tool === 'text') {
+        const text = prompt('Enter text:');
+        if (text) {
+            ctx.font = `${state.canvas.size * 6}px Inter, sans-serif`;
+            ctx.fillStyle = state.canvas.color;
+            ctx.textBaseline = 'top';
+            ctx.fillText(text, x, y);
+            saveCanvasState();
+        }
+        state.canvas.drawing = false;
+        return;
+    }
+    
+    // For pen tool, begin path
+    if (state.canvas.tool === 'pen') {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
 }
 
 function draw(e) {
     if (!state.canvas.drawing) return;
     
+    const x = e.offsetX !== undefined ? e.offsetX : e.pageX - canvas.offsetLeft;
+    const y = e.offsetY !== undefined ? e.offsetY : e.pageY - canvas.offsetTop;
+    
     if (state.canvas.tool === 'pen') {
-        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = state.canvas.color;
+        ctx.lineWidth = state.canvas.size;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();
+    } 
+    else if (state.canvas.tool === 'eraser') {
+        ctx.clearRect(x - state.canvas.size * 2, y - state.canvas.size * 2, state.canvas.size * 4, state.canvas.size * 4);
+    }
+    else if (state.canvas.tool === 'line') {
+        // Restore snapshot and draw new line
+        ctx.putImageData(state.canvas.snapshot, 0, 0);
+        ctx.beginPath();
+        ctx.moveTo(state.canvas.startX, state.canvas.startY);
+        ctx.lineTo(x, y);
         ctx.strokeStyle = state.canvas.color;
         ctx.lineWidth = state.canvas.size;
         ctx.lineCap = 'round';
         ctx.stroke();
-    } else if (state.canvas.tool === 'eraser') {
-        ctx.clearRect(e.offsetX - state.canvas.size * 2, e.offsetY - state.canvas.size * 2, state.canvas.size * 4, state.canvas.size * 4);
+    }
+    else if (state.canvas.tool === 'rect') {
+        // Restore snapshot and draw new rectangle
+        ctx.putImageData(state.canvas.snapshot, 0, 0);
+        const width = x - state.canvas.startX;
+        const height = y - state.canvas.startY;
+        ctx.strokeStyle = state.canvas.color;
+        ctx.lineWidth = state.canvas.size;
+        ctx.strokeRect(state.canvas.startX, state.canvas.startY, width, height);
+    }
+    else if (state.canvas.tool === 'circle') {
+        // Restore snapshot and draw new circle
+        ctx.putImageData(state.canvas.snapshot, 0, 0);
+        const radius = Math.sqrt(
+            Math.pow(x - state.canvas.startX, 2) + 
+            Math.pow(y - state.canvas.startY, 2)
+        );
+        ctx.beginPath();
+        ctx.arc(state.canvas.startX, state.canvas.startY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = state.canvas.color;
+        ctx.lineWidth = state.canvas.size;
+        ctx.stroke();
     }
 }
 
 function endDraw() {
     if (state.canvas.drawing) {
         state.canvas.drawing = false;
-        saveCanvasState();
+        
+        // For shapes, the final state is already on the canvas from the last draw() call
+        // Save after a tiny delay to ensure canvas has fully rendered
+        setTimeout(() => {
+            saveCanvasState();
+        }, 10);
     }
 }
 
@@ -1025,19 +1243,33 @@ function saveCanvasState() {
         state.canvas.history.shift();
         state.canvas.historyIdx--;
     }
+    updateCanvasButtons();
 }
 
 function restoreCanvasState() {
-    if (!canvas || state.canvas.history.length === 0) return;
+    if (!canvas || state.canvas.history.length === 0 || state.canvas.historyIdx < 0) return;
+    
+    const dataURL = state.canvas.history[state.canvas.historyIdx];
+    if (!dataURL) return;
+    
     const img = new Image();
-    img.src = state.canvas.history[state.canvas.historyIdx];
-    img.onload = () => ctx.drawImage(img, 0, 0);
+    img.onload = () => {
+        // Clear the entire canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Draw the image at full canvas size
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+    img.onerror = () => {
+        console.error('Failed to load canvas state image');
+    };
+    img.src = dataURL;
 }
 
 function undoCanvas() {
     if (state.canvas.historyIdx > 0) {
         state.canvas.historyIdx--;
         restoreCanvasState();
+        updateCanvasButtons();
     }
 }
 
@@ -1045,6 +1277,22 @@ function redoCanvas() {
     if (state.canvas.historyIdx < state.canvas.history.length - 1) {
         state.canvas.historyIdx++;
         restoreCanvasState();
+        updateCanvasButtons();
+    }
+}
+
+function updateCanvasButtons() {
+    const undoBtn = document.getElementById('undoBtn');
+    const redoBtn = document.getElementById('redoBtn');
+    
+    if (undoBtn) {
+        undoBtn.disabled = state.canvas.historyIdx <= 0;
+        undoBtn.style.opacity = state.canvas.historyIdx <= 0 ? '0.5' : '1';
+    }
+    
+    if (redoBtn) {
+        redoBtn.disabled = state.canvas.historyIdx >= state.canvas.history.length - 1;
+        redoBtn.style.opacity = state.canvas.historyIdx >= state.canvas.history.length - 1 ? '0.5' : '1';
     }
 }
 
