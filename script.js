@@ -74,12 +74,52 @@ const aiResponses = {
 // ============================================
 // INIT
 // ============================================
+let isInitialized = false;
+
 document.addEventListener('DOMContentLoaded', () => {
+    if (isInitialized) return; // Prevent double initialization
+    isInitialized = true;
+    
     loadState();
     initApp();
     setupListeners();
     updateUI();
 });
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    cleanup();
+});
+
+function cleanup() {
+    // Clear timer interval
+    if (state.timer.interval) {
+        clearInterval(state.timer.interval);
+        state.timer.interval = null;
+    }
+    
+    // Clear buddy timer
+    if (state.buddy.timer) {
+        clearInterval(state.buddy.timer);
+        state.buddy.timer = null;
+    }
+    
+    // Close audio context
+    if (state.audioCtx && state.audioCtx.state !== 'closed') {
+        state.audioCtx.close();
+    }
+    
+    // Stop all sounds
+    stopAllSounds();
+    
+    // Cancel speech synthesis
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+    
+    // Save final state
+    saveState();
+}
 
 function loadState() {
     try {
@@ -143,7 +183,12 @@ function applySettings() {
 // ============================================
 // EVENT LISTENERS
 // ============================================
+let listenersAttached = false;
+
 function setupListeners() {
+    if (listenersAttached) return; // Prevent duplicate listeners
+    listenersAttached = true;
+    
     // Navigation
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', () => showSection(btn.dataset.section));
@@ -197,10 +242,32 @@ function setupListeners() {
             opt.classList.add('active');
         });
     });
+    
+    // Notes event delegation
+    document.getElementById('notesGrid')?.addEventListener('click', e => {
+        const deleteBtn = e.target.closest('.note-delete');
+        if (deleteBtn) {
+            e.stopPropagation();
+            deleteNote(deleteBtn.dataset.noteId);
+            return;
+        }
+        const noteCard = e.target.closest('.note-card');
+        if (noteCard) {
+            const note = state.notes.find(n => n.id === noteCard.dataset.id);
+            if (note) openNoteModal(note);
+        }
+    });
 
     // Tasks
     document.getElementById('addTaskBtn')?.addEventListener('click', () => openModal('taskModal'));
     document.getElementById('taskForm')?.addEventListener('submit', saveTask);
+    
+    // Tasks event delegation
+    document.getElementById('tasksList')?.addEventListener('change', e => {
+        if (e.target.classList.contains('task-checkbox')) {
+            toggleTask(e.target.dataset.taskId);
+        }
+    });
 
     // Calendar
     document.getElementById('prevMonthBtn')?.addEventListener('click', () => navCalendar(-1));
@@ -501,17 +568,10 @@ function renderNotes() {
             <p>${escapeHtml(n.content).substring(0, 100)}${n.content.length > 100 ? '...' : ''}</p>
             <div class="note-card-footer">
                 <span>${formatDate(n.updatedAt)}</span>
-                <button class="btn small ghost note-delete" onclick="event.stopPropagation(); deleteNote('${n.id}')">🗑️</button>
+                <button class="btn small ghost note-delete" data-note-id="${n.id}">🗑️</button>
             </div>
         </div>
     `).join('');
-    
-    grid.querySelectorAll('.note-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const note = state.notes.find(n => n.id === card.dataset.id);
-            if (note) openNoteModal(note);
-        });
-    });
 }
 
 function deleteNote(id) {
@@ -588,7 +648,7 @@ function renderTasks() {
     
     list.innerHTML = sorted.map(t => `
         <div class="task-item ${t.completed ? 'completed' : ''}" data-id="${t.id}">
-            <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}')">
+            <input type="checkbox" class="task-checkbox" data-task-id="${t.id}" ${t.completed ? 'checked' : ''}>
             <span>${escapeHtml(t.title)}</span>
             <span class="task-priority ${t.priority}">${t.priority}</span>
         </div>
@@ -1031,9 +1091,10 @@ function addTypingIndicator() {
     const container = document.getElementById('chatMessages');
     const div = document.createElement('div');
     div.className = 'message bot typing';
-    div.innerHTML = `<span class="avatar">🤖</span><div class="bubble typing-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+    div.innerHTML = `<span class="avatar"><i data-lucide="bot" style="width: 20px; height: 20px;"></i></span><div class="bubble typing-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
+    lucide.createIcons(); // Re-initialize icons
     return div;
 }
 
@@ -1045,9 +1106,11 @@ function addChatBubble(text, isUser) {
     // Use parseMarkdown for bot messages to render formatting, escapeHtml for user messages
     const formattedText = isUser ? escapeHtml(text) : parseMarkdown(text);
     
-    div.innerHTML = `<span class="avatar">${isUser ? '👤' : '🤖'}</span><div class="bubble"><p>${formattedText}</p></div>`;
+    const iconName = isUser ? 'user' : 'bot';
+    div.innerHTML = `<span class="avatar"><i data-lucide="${iconName}" style="width: 20px; height: 20px;"></i></span><div class="bubble"><p>${formattedText}</p></div>`;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
+    lucide.createIcons(); // Re-initialize icon
 }
 
 function generateResponse(msg) {
