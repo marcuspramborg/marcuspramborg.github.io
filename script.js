@@ -1691,213 +1691,343 @@ window.toggleTask = toggleTask;
 // ============================================
 
 const bodyDoubling = {
-    peer: null,
-    currentCall: null,
-    localStream: null,
-    remoteStream: null,
-    sessionStartTime: null,
-    sessionTimer: null,
-    dataConnection: null,
-    profile: null,
+    selectedDuration: 50,
+    selectedDate: new Date(),
+    sessions: [],
+    currentSession: null,
     
     init() {
-        this.loadProfile();
+        this.loadSessions();
         this.setupEventListeners();
-        this.checkProfileStatus();
-        this.populateTimezones();
+        this.generateTimeSlots();
+        this.updateDateDisplay();
     },
     
-    loadProfile() {
-        const saved = localStorage.getItem('bdProfile');
+    loadSessions() {
+        const saved = localStorage.getItem('bdSessions');
         if (saved) {
-            this.profile = JSON.parse(saved);
+            this.sessions = JSON.parse(saved);
+            this.renderUpcomingSessions();
         }
     },
     
-    saveProfile(data) {
-        this.profile = data;
-        localStorage.setItem('bdProfile', JSON.stringify(data));
-    },
-    
-    checkProfileStatus() {
-        if (!this.profile) {
-            document.getElementById('bdProfileSetup').style.display = 'block';
-            document.getElementById('bdMain').style.display = 'none';
-        } else {
-            document.getElementById('bdProfileSetup').style.display = 'none';
-            document.getElementById('bdMain').style.display = 'block';
-            this.initializePeer();
-            this.loadPartners();
-            this.loadSessions();
-        }
-    },
-    
-    populateTimezones() {
-        const select = document.getElementById('bdTimezone');
-        if (!select) return;
-        
-        const timezones = [
-            'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
-            'America/Toronto', 'America/Vancouver', 'America/Mexico_City',
-            'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Madrid', 'Europe/Rome',
-            'Asia/Dubai', 'Asia/Kolkata', 'Asia/Shanghai', 'Asia/Tokyo', 'Asia/Seoul',
-            'Australia/Sydney', 'Australia/Melbourne', 'Pacific/Auckland'
-        ];
-        
-        const userTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        
-        timezones.forEach(tz => {
-            const option = document.createElement('option');
-            option.value = tz;
-            option.textContent = tz.replace(/_/g, ' ');
-            if (tz === userTZ) option.selected = true;
-            select.appendChild(option);
-        });
+    saveSessions() {
+        localStorage.setItem('bdSessions', JSON.stringify(this.sessions));
+        this.renderUpcomingSessions();
     },
     
     setupEventListeners() {
-        // Profile creation
-        document.getElementById('bdCreateProfile')?.addEventListener('click', () => this.createProfile());
-        
-        // Tab switching
-        document.querySelectorAll('.bd-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+        // Duration selection
+        document.querySelectorAll('.bd-duration-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.bd-duration-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.selectedDuration = parseInt(btn.dataset.duration);
+            });
         });
         
-        // Partner actions
-        document.getElementById('bdRefreshPartners')?.addEventListener('click', () => this.loadPartners());
-        document.getElementById('bdQuickMatch')?.addEventListener('click', () => this.quickMatch());
-        document.getElementById('bdScheduleSession')?.addEventListener('click', () => this.scheduleSession());
+        // Quick match
+        document.getElementById('bdQuickMatchNow')?.addEventListener('click', () => this.quickMatch());
         
-        // Video controls
-        document.getElementById('bdToggleMic')?.addEventListener('click', () => this.toggleMic());
-        document.getElementById('bdToggleVideo')?.addEventListener('click', () => this.toggleVideo());
-        document.getElementById('bdToggleScreen')?.addEventListener('click', () => this.toggleScreen());
-        document.getElementById('bdToggleChat')?.addEventListener('click', () => this.toggleChat());
-        document.getElementById('bdEndSession')?.addEventListener('click', () => this.endSession());
-        document.getElementById('bdCloseChat')?.addEventListener('click', () => this.toggleChat());
+        // Date navigation
+        document.getElementById('bdPrevDay')?.addEventListener('click', () => this.navigateDate(-1));
+        document.getElementById('bdNextDay')?.addEventListener('click', () => this.navigateDate(1));
         
-        // Chat
-        document.getElementById('bdSendChat')?.addEventListener('click', () => this.sendChatMessage());
-        document.getElementById('bdChatInput')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.sendChatMessage();
+        // Session controls
+        document.getElementById('bdBackToBooking')?.addEventListener('click', () => this.backToBooking());
+        document.getElementById('bdMuteBtn')?.addEventListener('click', () => toast('Muted', 'Microphone muted', 'info'));
+        document.getElementById('bdVideoBtn')?.addEventListener('click', () => toast('Camera', 'Camera toggled', 'info'));
+        document.getElementById('bdLeaveBtn')?.addEventListener('click', () => this.endSession());
+        document.getElementById('bdSaveGoal')?.addEventListener('click', () => this.saveGoal());
+        
+        // Modal actions
+        document.getElementById('bdSkipFeedback')?.addEventListener('click', () => this.closeFeedbackModal());
+        document.getElementById('bdSubmitFeedback')?.addEventListener('click', () => this.submitFeedback());
+        
+        // Star rating
+        document.querySelectorAll('.bd-star').forEach(star => {
+            star.addEventListener('click', (e) => {
+                const rating = parseInt(e.target.dataset.rating);
+                document.querySelectorAll('.bd-star').forEach((s, i) => {
+                    s.classList.toggle('active', i < rating);
+                });
+            });
         });
     },
     
-    createProfile() {
-        const name = document.getElementById('bdDisplayName').value.trim();
-        const timezone = document.getElementById('bdTimezone').value;
-        const sessionLength = document.getElementById('bdSessionLength').value;
+    navigateDate(direction) {
+        this.selectedDate.setDate(this.selectedDate.getDate() + direction);
+        this.updateDateDisplay();
+        this.generateTimeSlots();
+    },
+    
+    updateDateDisplay() {
+        const dateEl = document.getElementById('bdCurrentDate');
+        if (!dateEl) return;
         
-        if (!name) {
-            alert('Please enter a display name');
-            return;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selected = new Date(this.selectedDate);
+        selected.setHours(0, 0, 0, 0);
+        
+        if (selected.getTime() === today.getTime()) {
+            dateEl.textContent = 'Today';
+        } else {
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            if (selected.getTime() === tomorrow.getTime()) {
+                dateEl.textContent = 'Tomorrow';
+            } else {
+                dateEl.textContent = selected.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            }
+        }
+    },
+    
+    generateTimeSlots() {
+        const container = document.getElementById('bdTimeSlots');
+        if (!container) return;
+        
+        const slots = [];
+        const startHour = 6; // 6 AM
+        const endHour = 23; // 11 PM
+        
+        for (let hour = startHour; hour <= endHour; hour++) {
+            for (let minute of [0, 30]) {
+                const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                const displayTime = this.formatTime(hour, minute);
+                
+                // Check if slot is booked
+                const isBooked = this.isSlotBooked(time);
+                const isPast = this.isSlotInPast(hour, minute);
+                
+                slots.push({ time, displayTime, isBooked, isPast });
+            }
         }
         
-        const interests = Array.from(document.querySelectorAll('.checkbox-grid input:checked'))
-            .map(cb => cb.value);
+        container.innerHTML = slots.map(slot => `
+            <button class="bd-time-slot ${slot.isBooked ? 'booked' : slot.isPast ? '' : 'available'}" 
+                    data-time="${slot.time}"
+                    ${slot.isBooked || slot.isPast ? 'disabled' : ''}
+                    onclick="bodyDoubling.bookSlot('${slot.time}')">
+                ${slot.displayTime}
+            </button>
+        `).join('');
+    },
+    
+    formatTime(hour, minute) {
+        const period = hour >= 12 ? 'PM' : 'AM';
+        const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+        return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+    },
+    
+    isSlotBooked(time) {
+        return this.sessions.some(session => {
+            const sessionDate = new Date(session.dateTime);
+            const slotDate = new Date(this.selectedDate);
+            const [hours, minutes] = time.split(':').map(Number);
+            slotDate.setHours(hours, minutes, 0, 0);
+            
+            return Math.abs(sessionDate.getTime() - slotDate.getTime()) < 60000;
+        });
+    },
+    
+    isSlotInPast(hour, minute) {
+        const now = new Date();
+        const slotTime = new Date(this.selectedDate);
+        slotTime.setHours(hour, minute, 0, 0);
+        return slotTime < now;
+    },
+    
+    quickMatch() {
+        // Find next available slot within 15 minutes
+        const now = new Date();
+        const availableSlot = new Date(now);
+        // Round to next 30-minute mark
+        availableSlot.setMinutes(Math.ceil(availableSlot.getMinutes() / 30) * 30, 0, 0);
         
-        if (interests.length === 0) {
-            alert('Please select at least one interest');
-            return;
-        }
-        
-        const profile = {
-            id: 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-            name,
-            timezone,
-            interests,
-            sessionLength: parseInt(sessionLength),
-            createdAt: new Date().toISOString(),
-            availableNow: false
+        const session = {
+            id: Date.now(),
+            dateTime: availableSlot.toISOString(),
+            duration: this.selectedDuration,
+            partner: 'Quick Match Partner',
+            goal: '',
+            status: 'scheduled'
         };
         
-        this.saveProfile(profile);
-        this.checkProfileStatus();
+        this.sessions.push(session);
+        this.saveSessions();
+        
+        toast('Session Booked!', `Quick match session scheduled for ${this.formatTime(availableSlot.getHours(), availableSlot.getMinutes())}`, 'success');
+        celebrateCompletion('Session Booked!', `You're matched! Join your session starting at ${this.formatTime(availableSlot.getHours(), availableSlot.getMinutes())}`);
     },
     
-    initializePeer() {
-        if (this.peer) return;
+    bookSlot(time) {
+        const [hours, minutes] = time.split(':').map(Number);
+        const sessionDate = new Date(this.selectedDate);
+        sessionDate.setHours(hours, minutes, 0, 0);
         
-        try {
-            this.peer = new Peer(this.profile.id, {
-                config: {
-                    'iceServers': [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' }
-                    ]
-                }
-            });
-            
-            this.peer.on('open', (id) => {
-                console.log('Peer connection opened with ID:', id);
-            });
-            
-            this.peer.on('call', (call) => {
-                this.handleIncomingCall(call);
-            });
-            
-            this.peer.on('connection', (conn) => {
-                this.dataConnection = conn;
-                this.setupDataConnection(conn);
-            });
-            
-            this.peer.on('error', (err) => {
-                console.error('Peer error:', err);
-                alert('Connection error: ' + err.type);
-            });
-        } catch (err) {
-            console.error('Failed to initialize peer:', err);
-        }
+        const session = {
+            id: Date.now(),
+            dateTime: sessionDate.toISOString(),
+            duration: this.selectedDuration,
+            partner: 'Matched Partner',
+            goal: '',
+            status: 'scheduled'
+        };
+        
+        this.sessions.push(session);
+        this.saveSessions();
+        this.generateTimeSlots();
+        
+        toast('Booked!', `Session scheduled for ${this.formatTime(hours, minutes)}`, 'success');
     },
     
-    switchTab(tabName) {
-        document.querySelectorAll('.bd-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.bd-tab-content').forEach(c => c.classList.remove('active'));
+    renderUpcomingSessions() {
+        const container = document.getElementById('bdUpcomingList');
+        if (!container) return;
         
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-        document.getElementById(`bdTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
-    },
-    
-    loadPartners() {
-        const grid = document.getElementById('bdPartnersGrid');
-        grid.innerHTML = '<div class="bd-empty-state"><span class="empty-icon">👥</span><p>Loading partners...</p></div>';
+        // Filter upcoming sessions
+        const upcoming = this.sessions
+            .filter(s => new Date(s.dateTime) > new Date() && s.status === 'scheduled')
+            .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
         
-        // Simulate loading partners (in production, this would fetch from a server)
-        setTimeout(() => {
-            const mockPartners = this.generateMockPartners();
-            this.displayPartners(mockPartners);
-        }, 1000);
-    },
-    
-    generateMockPartners() {
-        const names = ['Alex', 'Jordan', 'Sam', 'Casey', 'Morgan', 'Taylor', 'Riley', 'Avery'];
-        const statuses = ['available', 'busy', 'offline'];
-        const allInterests = ['math', 'science', 'languages', 'programming', 'arts', 'business', 'writing', 'other'];
-        
-        return names.map((name, i) => ({
-            id: 'partner_' + i,
-            name,
-            status: statuses[i % 3],
-            interests: allInterests.slice(i % 3, (i % 3) + 3),
-            timezone: 'EST',
-            sessionLength: [25, 50, 90][i % 3]
-        }));
-    },
-    
-    displayPartners(partners) {
-        const grid = document.getElementById('bdPartnersGrid');
-        
-        if (partners.length === 0) {
-            grid.innerHTML = '<div class="bd-empty-state"><span class="empty-icon">👥</span><p>No partners found. Try adjusting your filters!</p></div>';
+        if (upcoming.length === 0) {
+            container.innerHTML = `
+                <div class="bd-empty-message">
+                    <span class="empty-icon">📅</span>
+                    <p>No upcoming sessions. Book one above to get started!</p>
+                </div>
+            `;
             return;
         }
         
-        grid.innerHTML = partners.map(partner => `
-            <div class="bd-partner-card">
-                <div class="bd-partner-header">
-                    <span class="bd-partner-name">${partner.name}</span>
-                    <span class="bd-partner-status ${partner.status}">${partner.status}</span>
+        container.innerHTML = upcoming.map(session => {
+            const date = new Date(session.dateTime);
+            const timeStr = this.formatTime(date.getHours(), date.getMinutes());
+            const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            
+            return `
+                <div class="bd-session-card">
+                    <div class="bd-session-details">
+                        <div class="bd-session-time-display">${dateStr} at ${timeStr}</div>
+                        <div class="bd-session-duration">${session.duration} minutes with ${session.partner}</div>
+                    </div>
+                    <div class="bd-session-card-actions">
+                        <button class="btn small primary" onclick="bodyDoubling.joinSession(${session.id})">Join</button>
+                        <button class="btn small ghost" onclick="bodyDoubling.cancelSession(${session.id})">Cancel</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    },
+    
+    joinSession(id) {
+        const session = this.sessions.find(s => s.id === id);
+        if (!session) return;
+        
+        this.currentSession = session;
+        document.querySelector('.bd-booking-section').style.display = 'none';
+        document.querySelector('.bd-how-it-works').style.display = 'none';
+        document.querySelector('.bd-hero').style.display = 'none';
+        document.getElementById('bdSessionView').style.display = 'block';
+        
+        // Start timer
+        this.startSessionTimer(session.duration);
+        toast('Session Started', `You have ${session.duration} minutes!`, 'success');
+    },
+    
+    startSessionTimer(duration) {
+        let remaining = duration * 60; // Convert to seconds
+        const timerEl = document.getElementById('bdTimeLeft');
+        
+        const updateTimer = () => {
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            if (timerEl) {
+                timerEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            remaining--;
+            
+            if (remaining < 0) {
+                clearInterval(this.timerInterval);
+                this.completeSession();
+            }
+        };
+        
+        updateTimer();
+        this.timerInterval = setInterval(updateTimer, 1000);
+    },
+    
+    completeSession() {
+        if (this.currentSession) {
+            this.currentSession.status = 'completed';
+            this.saveSessions();
+        }
+        
+        document.getElementById('bdCompleteModal').style.display = 'flex';
+    },
+    
+    endSession() {
+        if (confirm('Are you sure you want to leave this session?')) {
+            clearInterval(this.timerInterval);
+            this.completeSession();
+        }
+    },
+    
+    backToBooking() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        
+        document.querySelector('.bd-booking-section').style.display = 'block';
+        document.querySelector('.bd-how-it-works').style.display = 'block';
+        document.querySelector('.bd-hero').style.display = 'block';
+        document.getElementById('bdSessionView').style.display = 'none';
+    },
+    
+    cancelSession(id) {
+        if (confirm('Cancel this session?')) {
+            this.sessions = this.sessions.filter(s => s.id !== id);
+            this.saveSessions();
+            this.generateTimeSlots();
+            toast('Cancelled', 'Session cancelled', 'info');
+        }
+    },
+    
+    saveGoal() {
+        const goal = document.getElementById('bdGoalInput').value.trim();
+        if (goal && this.currentSession) {
+            this.currentSession.goal = goal;
+            document.getElementById('bdYourGoal').textContent = goal;
+            toast('Goal Saved', 'Your session goal has been saved', 'success');
+        }
+    },
+    
+    submitFeedback() {
+        const accomplishment = document.getElementById('bdAccomplishment').value.trim();
+        const rating = document.querySelectorAll('.bd-star.active').length;
+        
+        if (this.currentSession) {
+            this.currentSession.feedback = { accomplishment, rating };
+            this.saveSessions();
+        }
+        
+        this.closeFeedbackModal();
+        this.backToBooking();
+        
+        state.rewards.points += 50;
+        updateUI();
+        saveState();
+        
+        toast('Great Work!', `+50 points! You rated your session ${rating}/5 stars`, 'success');
+    },
+    
+    closeFeedbackModal() {
+        document.getElementById('bdCompleteModal').style.display = 'none';
+        this.backToBooking();
+    }
+};
                 </div>
                 <div class="bd-partner-interests">
                     ${partner.interests.map(interest => `<span class="bd-interest-tag">${interest}</span>`).join('')}
