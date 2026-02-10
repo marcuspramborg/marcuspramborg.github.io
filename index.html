@@ -9,79 +9,68 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body class="theme-calm">
-    <!-- SVG Definitions for icon gradients -->
-    <svg width="0" height="0" style="position: absolute;">
-        <defs>
-            <linearGradient id="brand-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#a78bfa;stop-opacity:1" />
-            </linearGradient>
-        </defs>
-    </svg>
-    
     <div class="app">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-brand">
-                <i data-lucide="brain" class="brand-icon"></i>
+                <span class="brand-icon">🧠</span>
                 <span class="brand-text">Focus</span>
             </div>
             
             <nav class="sidebar-nav">
                 <button class="nav-btn active" data-section="dashboard">
-                    <i data-lucide="layout-dashboard" class="nav-icon"></i>
+                    <span class="nav-icon">📊</span>
                     <span class="nav-label">Dashboard</span>
                 </button>
                 <button class="nav-btn" data-section="ai">
-                    <i data-lucide="bot" class="nav-icon"></i>
+                    <span class="nav-icon">🤖</span>
                     <span class="nav-label">AI Helper</span>
                 </button>
                 <button class="nav-btn" data-section="timer">
-                    <i data-lucide="timer" class="nav-icon"></i>
+                    <span class="nav-icon">⏱️</span>
                     <span class="nav-label">Timer</span>
                 </button>
                 <button class="nav-btn" data-section="notes">
-                    <i data-lucide="sticky-note" class="nav-icon"></i>
+                    <span class="nav-icon">📝</span>
                     <span class="nav-label">Notes</span>
                 </button>
                 <button class="nav-btn" data-section="calendar">
-                    <i data-lucide="calendar" class="nav-icon"></i>
+                    <span class="nav-icon">📅</span>
                     <span class="nav-label">Calendar</span>
                 </button>
                 <button class="nav-btn" data-section="sounds">
-                    <i data-lucide="music" class="nav-icon"></i>
+                    <span class="nav-icon">🎵</span>
                     <span class="nav-label">Sounds</span>
                 </button>
                 <button class="nav-btn" data-section="tts">
-                    <i data-lucide="volume-2" class="nav-icon"></i>
+                    <span class="nav-icon">🔊</span>
                     <span class="nav-label">Read Aloud</span>
                 </button>
                 <button class="nav-btn" data-section="canvas">
-                    <i data-lucide="palette" class="nav-icon"></i>
+                    <span class="nav-icon">🎨</span>
                     <span class="nav-label">Sketch</span>
                 </button>
                 <button class="nav-btn" data-section="breaks">
-                    <i data-lucide="coffee" class="nav-icon"></i>
+                    <span class="nav-icon">🧘</span>
                     <span class="nav-label">Breaks</span>
                 </button>
                 <button class="nav-btn" data-section="bodydoubling">
-                    <i data-lucide="users" class="nav-icon"></i>
+                    <span class="nav-icon">👥</span>
                     <span class="nav-label">Body Doubling</span>
                 </button>
                 <button class="nav-btn" data-section="resources">
-                    <i data-lucide="link" class="nav-icon"></i>
+                    <span class="nav-icon">🔗</span>
                     <span class="nav-label">Resources</span>
                 </button>
             </nav>
             
             <div class="sidebar-footer">
                 <div class="stats-row">
-                    <span class="stat-item"><i data-lucide="flame" style="width: 16px; height: 16px;"></i> <span id="streakCount">0</span></span>
-                    <span class="stat-item"><i data-lucide="star" style="width: 16px; height: 16px;"></i> <span id="pointsCount">0</span></span>
+                    <span class="stat-item">🔥 <span id="streakCount">0</span></span>
+                    <span class="stat-item">⭐ <span id="pointsCount">0</span></span>
                 </div>
             </div>
         </aside>
@@ -91,11 +80,11 @@
             <!-- Header -->
             <header class="header">
                 <div class="header-left">
-                    <button class="menu-toggle" id="menuToggle"><i data-lucide="menu"></i></button>
+                    <button class="menu-toggle" id="menuToggle">☰</button>
                     <h1 class="page-title" id="pageTitle">Dashboard</h1>
                 </div>
                 <div class="header-right">
-                    <button class="icon-btn" id="settingsBtn" title="Settings"><i data-lucide="settings"></i></button>
+                    <button class="icon-btn" id="settingsBtn" title="Settings">⚙️</button>
                 </div>
             </header>
             
@@ -105,10 +94,10 @@
                 <div class="setting-group">
                     <label>Theme</label>
                     <div class="theme-options">
-                        <button class="theme-btn active" data-theme="calm"><i data-lucide="waves" style="width: 16px; height: 16px;"></i> Calm</button>
-                        <button class="theme-btn" data-theme="forest"><i data-lucide="tree-pine" style="width: 16px; height: 16px;"></i> Forest</button>
-                        <button class="theme-btn" data-theme="sunset"><i data-lucide="sunset" style="width: 16px; height: 16px;"></i> Sunset</button>
-                        <button class="theme-btn" data-theme="dark"><i data-lucide="moon" style="width: 16px; height: 16px;"></i> Dark</button>
+                        <button class="theme-btn active" data-theme="calm">🌊 Calm</button>
+                        <button class="theme-btn" data-theme="forest">🌲 Forest</button>
+                        <button class="theme-btn" data-theme="sunset">🌅 Sunset</button>
+                        <button class="theme-btn" data-theme="dark">🌙 Dark</button>
                     </div>
                 </div>
                 <div class="setting-group">
@@ -151,7 +140,7 @@
                         <!-- Tasks Widget -->
                         <div class="widget">
                             <div class="widget-header">
-                                <h3><i data-lucide="clipboard"></i> Today's Tasks</h3>
+                                <h3>📋 Today's Tasks</h3>
                                 <button class="btn small" id="addTaskBtn">+ Add</button>
                             </div>
                             <div class="widget-body">
@@ -164,7 +153,7 @@
                         <!-- Progress Widget -->
                         <div class="widget">
                             <div class="widget-header">
-                                <h3><i data-lucide="trending-up"></i> Progress</h3>
+                                <h3>📈 Progress</h3>
                             </div>
                             <div class="widget-body">
                                 <div class="progress-grid">
@@ -187,7 +176,7 @@
                         <!-- Study Tip Widget -->
                         <div class="widget wide">
                             <div class="widget-header">
-                                <h3><i data-lucide="lightbulb"></i> Study Tip</h3>
+                                <h3>💡 Study Tip</h3>
                                 <button class="btn small ghost" id="newTipBtn">New Tip</button>
                             </div>
                             <div class="widget-body">
@@ -198,12 +187,12 @@
                         <!-- Study Buddy Widget -->
                         <div class="widget">
                             <div class="widget-header">
-                                <h3><i data-lucide="graduation-cap"></i> Study Buddy</h3>
+                                <h3>🎓 Study Buddy</h3>
                             </div>
                             <div class="widget-body">
                                 <div class="buddy-section">
                                     <div class="buddy-avatar">
-                                        <span class="avatar-emoji"><i data-lucide="book"></i></span>
+                                        <span class="avatar-emoji">📚</span>
                                         <span class="status-dot" id="buddyDot"></span>
                                     </div>
                                     <p id="buddyMessage">Start a focus session together!</p>
@@ -215,14 +204,14 @@
                         <!-- Badges Widget -->
                         <div class="widget">
                             <div class="widget-header">
-                                <h3><i data-lucide="trophy"></i> Badges</h3>
+                                <h3>🏆 Badges</h3>
                             </div>
                             <div class="widget-body">
                                 <div class="badges-grid" id="badgesGrid">
-                                    <span class="badge" title="First Focus"><i data-lucide="star"></i></span>
-                                    <span class="badge locked" title="7-Day Streak"><i data-lucide="flame"></i></span>
-                                    <span class="badge locked" title="Note Master"><i data-lucide="sticky-note"></i></span>
-                                    <span class="badge locked" title="Hydration Hero"><i data-lucide="droplet"></i></span>
+                                    <span class="badge" title="First Focus">🌟</span>
+                                    <span class="badge locked" title="7-Day Streak">🔥</span>
+                                    <span class="badge locked" title="Note Master">📝</span>
+                                    <span class="badge locked" title="Hydration Hero">💧</span>
                                 </div>
                             </div>
                         </div>
@@ -233,7 +222,7 @@
                 <section class="section" id="section-ai">
                     <div class="ai-page">
                         <div class="ai-header">
-                            <div class="ai-avatar-large"><i data-lucide="bot"></i></div>
+                            <div class="ai-avatar-large">🤖</div>
                             <div>
                                 <h2>AI Study Assistant</h2>
                                 <p>Your friendly, encouraging study companion</p>
@@ -241,18 +230,18 @@
                         </div>
                         
                         <div class="ai-quick-actions">
-                            <button class="quick-btn" data-action="motivate"><i data-lucide="zap"></i> Motivate Me</button>
-                            <button class="quick-btn" data-action="studyTip"><i data-lucide="lightbulb"></i> Study Tip</button>
-                            <button class="quick-btn" data-action="breakTime"><i data-lucide="heart-pulse"></i> Break Ideas</button>
-                            <button class="quick-btn" data-action="pomodoro"><i data-lucide="clock"></i> Pomodoro Info</button>
+                            <button class="quick-btn" data-action="motivate">💪 Motivate Me</button>
+                            <button class="quick-btn" data-action="studyTip">💡 Study Tip</button>
+                            <button class="quick-btn" data-action="breakTime">🧘 Break Ideas</button>
+                            <button class="quick-btn" data-action="pomodoro">🍅 Pomodoro Info</button>
                         </div>
                         
                         <div class="chat-container" id="chatContainer">
                             <div class="chat-messages" id="chatMessages">
                                 <div class="message bot">
-                                    <span class="avatar"><i data-lucide="bot"></i></span>
+                                    <span class="avatar">🤖</span>
                                     <div class="bubble">
-                                        <p>Hi there! <i data-lucide="hand" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;"></i> I'm your AI study buddy. I'm here to help you stay focused, motivated, and on track. Ask me anything!</p>
+                                        <p>Hi there! 👋 I'm your AI study buddy. I'm here to help you stay focused, motivated, and on track. Ask me anything!</p>
                                     </div>
                                 </div>
                             </div>
@@ -324,14 +313,14 @@
                 <section class="section" id="section-notes">
                     <div class="notes-page">
                         <div class="notes-toolbar">
-                            <button class="btn primary" id="newNoteBtn"><i data-lucide="plus"></i> New Note</button>
-                            <button class="btn secondary" id="voiceNoteBtn"><i data-lucide="mic"></i> Voice</button>
-                            <button class="btn ghost" id="exportNotesBtn"><i data-lucide="download"></i> Export</button>
+                            <button class="btn primary" id="newNoteBtn">➕ New Note</button>
+                            <button class="btn secondary" id="voiceNoteBtn">🎤 Voice</button>
+                            <button class="btn ghost" id="exportNotesBtn">📥 Export</button>
                             <input type="search" class="search-input" id="notesSearch" placeholder="Search notes...">
                         </div>
                         <div class="notes-grid" id="notesGrid">
                             <div class="empty-state">
-                                <span class="empty-icon"><i data-lucide="sticky-note"></i></span>
+                                <span class="empty-icon">📝</span>
                                 <h3>No notes yet</h3>
                                 <p>Click "New Note" to create one</p>
                             </div>
@@ -361,10 +350,10 @@
                                 <input type="date" id="eventDate" required>
                                 <input type="time" id="eventTime">
                                 <select id="eventCategory">
-                                    <option value="exam"><i data-lucide="book"></i> Exam</option>
-                                    <option value="assignment"><i data-lucide="file-text"></i> Assignment</option>
-                                    <option value="study"><i data-lucide="book-open"></i> Study Session</option>
-                                    <option value="reminder"><i data-lucide="alarm-clock"></i> Reminder</option>
+                                    <option value="exam">📚 Exam</option>
+                                    <option value="assignment">📝 Assignment</option>
+                                    <option value="study">📖 Study Session</option>
+                                    <option value="reminder">⏰ Reminder</option>
                                 </select>
                                 <button type="submit" class="btn primary">Add Event</button>
                             </form>
@@ -380,21 +369,21 @@
                 <section class="section" id="section-sounds">
                     <div class="sounds-page">
                         <div class="sounds-header">
-                            <h2><i data-lucide="music-2"></i> Focus Sounds</h2>
+                            <h2>🎵 Focus Sounds</h2>
                             <p>Mix ambient sounds to create your perfect study environment</p>
                         </div>
                         
                         <div class="sound-presets">
                             <button class="preset-card" data-preset="deepFocus">
-                                <span class="icon"><i data-lucide="target"></i></span>
+                                <span class="icon">🎯</span>
                                 <span class="label">Deep Focus</span>
                             </button>
                             <button class="preset-card" data-preset="nature">
-                                <span class="icon"><i data-lucide="leaf"></i></span>
+                                <span class="icon">🌿</span>
                                 <span class="label">Nature</span>
                             </button>
                             <button class="preset-card" data-preset="rain">
-                                <span class="icon"><i data-lucide="cloud-rain"></i></span>
+                                <span class="icon">🌧️</span>
                                 <span class="label">Rain</span>
                             </button>
                             <button class="preset-card" data-preset="cafe">
@@ -424,7 +413,7 @@
                                 </div>
                                 <div class="sound-channel">
                                     <div class="channel-info">
-                                        <span class="channel-icon"><i data-lucide="circle" style="width: 16px; height: 16px; fill: #8B4513;"></i></span>
+                                        <span class="channel-icon">🟤</span>
                                         <span class="channel-name">Brown Noise</span>
                                     </div>
                                     <input type="range" class="volume-slider" data-sound="brown" min="0" max="100" value="50">
@@ -442,7 +431,7 @@
                 <section class="section" id="section-tts">
                     <div class="tts-page">
                         <div class="tts-header">
-                            <h2><i data-lucide="volume-2"></i> Text-to-Speech</h2>
+                            <h2>🔊 Text-to-Speech</h2>
                             <p>Have your study materials read aloud</p>
                         </div>
                         
@@ -450,7 +439,7 @@
                             <textarea id="ttsText" placeholder="Paste or type text here to have it read aloud..." rows="8"></textarea>
                             <div class="file-upload">
                                 <label class="btn secondary">
-                                    <i data-lucide="folder"></i> Upload File
+                                    📁 Upload File
                                     <input type="file" id="ttsFileInput" accept=".txt,.md" hidden>
                                 </label>
                                 <span id="ttsFileName"></span>
@@ -504,7 +493,7 @@
                                 <button class="btn small" id="undoBtn">↶ Undo</button>
                                 <button class="btn small" id="redoBtn">↷ Redo</button>
                                 <button class="btn small ghost" id="clearCanvasBtn">Clear</button>
-                                <button class="btn small primary" id="downloadCanvasBtn"><i data-lucide="save"></i> Save</button>
+                                <button class="btn small primary" id="downloadCanvasBtn">💾 Save</button>
                             </div>
                         </div>
                         <div class="canvas-area">
@@ -517,14 +506,14 @@
                 <section class="section" id="section-breaks">
                     <div class="breaks-page">
                         <div class="breaks-header">
-                            <h2><i data-lucide="heart-pulse"></i> Sensory Breaks</h2>
+                            <h2>🧘 Sensory Breaks</h2>
                             <p>Take care of your body and mind</p>
                         </div>
                         
                         <div class="breaks-grid">
                             <!-- Breathing -->
                             <div class="break-card">
-                                <div class="break-icon"><i data-lucide="wind"></i></div>
+                                <div class="break-icon">🌬️</div>
                                 <h3>4-7-8 Breathing</h3>
                                 <p>Calm your nervous system</p>
                                 <div class="breathing-visual" id="breathingVisual">
@@ -536,11 +525,11 @@
                             
                             <!-- Stretching -->
                             <div class="break-card">
-                                <div class="break-icon"><i data-lucide="user"></i></div>
+                                <div class="break-icon">🧘</div>
                                 <h3>Quick Stretch</h3>
                                 <p>Release tension</p>
                                 <div class="stretch-visual">
-                                    <div class="stretch-emoji" id="stretchEmoji"><i data-lucide="user"></i></div>
+                                    <div class="stretch-emoji" id="stretchEmoji">🙆</div>
                                     <p id="stretchText">Click to start</p>
                                 </div>
                                 <button class="btn primary" id="stretchBtn">Start</button>
@@ -578,7 +567,7 @@
                             
                             <!-- Hydration -->
                             <div class="break-card wide">
-                                <div class="break-icon"><i data-lucide="droplet"></i></div>
+                                <div class="break-icon">💧</div>
                                 <h3>Hydration Tracker</h3>
                                 <p>Stay hydrated!</p>
                                 <div class="hydration-visual">
@@ -594,7 +583,7 @@
                                     </div>
                                     <p><span id="glassCount">0</span>/8 glasses</p>
                                 </div>
-                                <button class="btn primary" id="logWaterBtn"><i data-lucide="droplet"></i> Log Glass</button>
+                                <button class="btn primary" id="logWaterBtn">💧 Log Glass</button>
                             </div>
                         </div>
                     </div>
@@ -606,7 +595,7 @@
                         <!-- Profile Setup (First Time) -->
                         <div class="bd-profile-setup" id="bdProfileSetup" style="display: none;">
                             <div class="bd-welcome">
-                                <h2><i data-lucide="users"></i> Welcome to Body Doubling!</h2>
+                                <h2>👥 Welcome to Body Doubling!</h2>
                                 <p>Find study partners, schedule sessions, and stay accountable together. Let's set up your profile:</p>
                             </div>
                             
@@ -624,14 +613,14 @@
                                 <div class="form-group">
                                     <label>Study Interests (Select all that apply)</label>
                                     <div class="checkbox-grid">
-                                        <label class="checkbox-item"><input type="checkbox" value="math"> <i data-lucide="square-function"></i> Math</label>
-                                        <label class="checkbox-item"><input type="checkbox" value="science"> <i data-lucide="flask-conical"></i> Science</label>
-                                        <label class="checkbox-item"><input type="checkbox" value="languages"> <i data-lucide="languages"></i> Languages</label>
-                                        <label class="checkbox-item"><input type="checkbox" value="programming"> <i data-lucide="laptop"></i> Programming</label>
-                                        <label class="checkbox-item"><input type="checkbox" value="arts"> <i data-lucide="palette"></i> Arts</label>
-                                        <label class="checkbox-item"><input type="checkbox" value="business"> <i data-lucide="briefcase"></i> Business</label>
-                                        <label class="checkbox-item"><input type="checkbox" value="writing"> <i data-lucide="pen-tool"></i> Writing</label>
-                                        <label class="checkbox-item"><input type="checkbox" value="other"> <i data-lucide="book"></i> Other</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="math"> 📐 Math</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="science"> 🔬 Science</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="languages"> 🗣️ Languages</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="programming"> 💻 Programming</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="arts"> 🎨 Arts</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="business"> 💼 Business</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="writing"> ✍️ Writing</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="other"> 📚 Other</label>
                                     </div>
                                 </div>
                                 
@@ -689,7 +678,7 @@
                                 <div class="bd-partners-grid" id="bdPartnersGrid">
                                     <!-- Partner cards will be inserted here -->
                                     <div class="bd-empty-state">
-                                        <span class="empty-icon"><i data-lucide="users"></i></span>
+                                        <span class="empty-icon">👥</span>
                                         <p>Loading partners...</p>
                                     </div>
                                 </div>
@@ -894,7 +883,7 @@
 
                         <!-- Note-Taking & Organization -->
                         <div class="resource-category">
-                            <h3><i data-lucide="sticky-note"></i> Note-Taking & Organization</h3>
+                            <h3>📝 Note-Taking & Organization</h3>
                             <div class="resource-list">
                                 <a href="https://notion.so" target="_blank" class="resource-card">
                                     <span class="resource-icon">📋</span>
@@ -929,7 +918,7 @@
 
                         <!-- Focus Music & Sounds -->
                         <div class="resource-category">
-                            <h3><i data-lucide="headphones"></i> Focus Music & Sounds</h3>
+                            <h3>🎧 Focus Music & Sounds</h3>
                             <div class="resource-list">
                                 <a href="https://brain.fm" target="_blank" class="resource-card">
                                     <span class="resource-icon">🧠</span>
@@ -964,7 +953,7 @@
 
                         <!-- Focus & Productivity Apps -->
                         <div class="resource-category">
-                            <h3><i data-lucide="tree-pine"></i> Focus & Gamification</h3>
+                            <h3>🌳 Focus & Gamification</h3>
                             <div class="resource-list">
                                 <a href="https://www.forestapp.cc" target="_blank" class="resource-card">
                                     <span class="resource-icon">🌲</span>
@@ -1034,7 +1023,7 @@
 
                         <!-- Body Doubling & Accountability -->
                         <div class="resource-category">
-                            <h3><i data-lucide="users"></i> Body Doubling & Accountability</h3>
+                            <h3>👥 Body Doubling & Accountability</h3>
                             <div class="resource-list">
                                 <a href="https://www.focusmate.com" target="_blank" class="resource-card">
                                     <span class="resource-icon">👤</span>
@@ -1174,7 +1163,7 @@
 
                         <!-- Visual Thinking -->
                         <div class="resource-category">
-                            <h3><i data-lucide="palette"></i> Visual Thinking & Diagrams</h3>
+                            <h3>🎨 Visual Thinking & Diagrams</h3>
                             <div class="resource-list">
                                 <a href="https://excalidraw.com" target="_blank" class="resource-card">
                                     <span class="resource-icon">✏️</span>
@@ -1209,7 +1198,7 @@
 
                         <!-- Mindfulness & Wellness -->
                         <div class="resource-category">
-                            <h3><i data-lucide="heart-pulse"></i> Mindfulness & Wellness</h3>
+                            <h3>🧘 Mindfulness & Wellness</h3>
                             <div class="resource-list">
                                 <a href="https://www.calm.com" target="_blank" class="resource-card">
                                     <span class="resource-icon">🌙</span>
@@ -1330,7 +1319,7 @@
     <div class="celebration-overlay" id="celebrationModal">
         <div class="celebration-content">
             <div class="confetti" id="confetti"></div>
-            <div class="celebration-emoji"><i data-lucide="party-popper" style="width: 64px; height: 64px;"></i></div>
+            <div class="celebration-emoji">🎉</div>
             <h2>Amazing Work!</h2>
             <p id="celebrationMsg">You completed a focus session!</p>
             <button class="btn primary" id="celebrationCloseBtn">Continue</button>
@@ -1341,47 +1330,5 @@
     <div class="toast-container" id="toastContainer"></div>
     
     <script src="script.js"></script>
-    <script>
-        // Initialize Lucide icons
-        document.addEventListener('DOMContentLoaded', () => {
-            // Emoji to icon mapping for resources
-            const emojiToIcon = {
-                '📓': 'book-open', '💬': 'message-circle', '🧠': 'brain', '🔍': 'search',
-                '🗣️': 'mic', '📖': 'book', '🎙️': 'mic-2', '🌈': 'rainbow',
-                '📚': 'library', '🎴': 'layers', '🔗': 'link-2', '🎮': 'gamepad-2',
-                '📋': 'clipboard-list', '💎': 'gem', '🌐': 'globe', '✏️': 'pencil',
-                '🌊': 'waves', '🎵': 'music-2', '🔉': 'volume-1',
-                '🌲': 'tree-pine', '🌸': 'flower-2', '⚔️': 'swords', '🐝': 'bug',
-                '🔒': 'lock', '🦃': 'leaf', '⏰': 'alarm-clock', '🛡️': 'shield',
-                '👤': 'user', '🏔️': 'mountain', '📺': 'tv', '☑️': 'check-square',
-                '📊': 'bar-chart-2', '👺': 'zap', '📱': 'smartphone', '☀️': 'sun',
-                '⏲️': 'timer', '📈': 'trending-up', '🕐': 'clock',
-                '📑': 'file-text', '🎒': 'backpack', '✍️': 'pen-tool',
-                '📌': 'pin', '💭': 'message-square', '🕸️': 'network',
-                '🌙': 'moon', '🧡': 'heart', '🔔': 'bell'
-            };
-            
-            // Replace resource icons
-            document.querySelectorAll('.resource-icon').forEach(span => {
-                const emoji = span.textContent.trim();
-                const iconName = emojiToIcon[emoji];
-                if (iconName) {
-                    span.innerHTML = '';
-                    const icon = document.createElement('i');
-                    icon.setAttribute('data-lucide', iconName);
-                    icon.style.width = '24px';
-                    icon.style.height = '24px';
-                    span.appendChild(icon);
-                }
-            });
-            
-            // Initialize all Lucide icons
-            lucide.createIcons();
-            
-            // Re-initialize icons whenever content changes
-            const observer = new MutationObserver(() => lucide.createIcons());
-            observer.observe(document.body, { childList: true, subtree: true });
-        });
-    </script>
 </body>
 </html>
