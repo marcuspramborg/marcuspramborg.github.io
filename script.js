@@ -298,25 +298,73 @@ function setupListeners() {
 // NAVIGATION
 // ============================================
 function showSection(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const currentActive = document.querySelector('.section.active');
+    const target = document.getElementById(`section-${id}`);
     
-    document.getElementById(`section-${id}`)?.classList.add('active');
+    // Fade out current section
+    if (currentActive && currentActive !== target) {
+        currentActive.style.opacity = '0';
+        currentActive.style.transform = 'translateY(8px)';
+        setTimeout(() => {
+            currentActive.classList.remove('active');
+            currentActive.style.opacity = '';
+            currentActive.style.transform = '';
+        }, 150);
+    }
+    
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.querySelector(`[data-section="${id}"]`)?.classList.add('active');
+    
+    // Fade in new section
+    setTimeout(() => {
+        if (target) {
+            target.style.opacity = '0';
+            target.style.transform = 'translateY(8px)';
+            target.classList.add('active');
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    target.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    target.style.opacity = '1';
+                    target.style.transform = 'translateY(0)';
+                    setTimeout(() => {
+                        target.style.transition = '';
+                    }, 300);
+                });
+            });
+        }
+        
+        // Animate children with stagger
+        animateChildren(target);
+    }, currentActive && currentActive !== target ? 150 : 0);
     
     state.currentSection = id;
     document.getElementById('pageTitle').textContent = {
         dashboard: 'Dashboard', timer: 'Focus Timer', notes: 'Quick Notes',
         calendar: 'Calendar', sounds: 'Focus Sounds', tts: 'Text-to-Speech',
         ai: 'AI Study Assistant', canvas: 'Quick Sketch', breaks: 'Sensory Breaks',
-        resources: 'External Resources'
+        bodydoubling: 'Body Doubling', resources: 'External Resources'
     }[id] || 'Focus';
 
     // Close mobile sidebar
     document.getElementById('sidebar')?.classList.remove('show');
     
     // Resize canvas when shown
-    if (id === 'canvas') resizeCanvas();
+    if (id === 'canvas') setTimeout(resizeCanvas, 200);
+}
+
+function animateChildren(container) {
+    if (!container || state.settings.reducedMotion) return;
+    const animatables = container.querySelectorAll('.widget, .break-card, .note-card, .resource-card, .bd-booking-section, .bd-hero, .bd-how-it-works');
+    animatables.forEach((el, i) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(12px)';
+        setTimeout(() => {
+            el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+            setTimeout(() => { el.style.transition = ''; }, 400);
+        }, i * 60);
+    });
 }
 
 // ============================================
@@ -1485,10 +1533,10 @@ function updateHydrationDisplay() {
 // UI HELPERS
 // ============================================
 function updateUI() {
-    document.getElementById('streakCount').textContent = state.rewards.streak;
-    document.getElementById('pointsCount').textContent = state.rewards.points;
-    document.getElementById('sessionsToday').textContent = state.timer.sessions;
-    document.getElementById('sessionCountDisplay').textContent = state.timer.sessions;
+    animateValue(document.getElementById('streakCount'), state.rewards.streak);
+    animateValue(document.getElementById('pointsCount'), state.rewards.points);
+    animateValue(document.getElementById('sessionsToday'), state.timer.sessions);
+    animateValue(document.getElementById('sessionCountDisplay'), state.timer.sessions);
     updateProgressStats();
 }
 
@@ -1498,11 +1546,11 @@ function updateProgressStats() {
     
     if (focusHours) {
         const hours = Math.floor((state.timer.sessions * 25) / 60);
-        focusHours.textContent = hours + 'h';
+        animateValue(focusHours, hours, 'h');
     }
     
     if (tasksCompleted) {
-        tasksCompleted.textContent = state.tasks.filter(t => t.completed).length;
+        animateValue(tasksCompleted, state.tasks.filter(t => t.completed).length);
     }
 }
 
@@ -1572,6 +1620,19 @@ function showCelebration() {
     setTimeout(() => document.getElementById('celebrationModal')?.classList.remove('show'), 4000);
 }
 
+function celebrateCompletion(title, message) {
+    // Show celebration modal with custom message
+    const modal = document.getElementById('celebrationModal');
+    if (modal) {
+        const h2 = modal.querySelector('h2');
+        const p = modal.querySelector('p');
+        if (h2) h2.textContent = title || '🎉 Well Done!';
+        if (p) p.textContent = message || 'You completed a session!';
+        modal.classList.add('show');
+        setTimeout(() => modal.classList.remove('show'), 4000);
+    }
+}
+
 function toast(title, message, type = 'info') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
@@ -1579,11 +1640,26 @@ function toast(title, message, type = 'info') {
     const icons = { success: '✅', warning: '⚠️', error: '❌', info: 'ℹ️' };
     const t = document.createElement('div');
     t.className = `toast ${type}`;
-    t.innerHTML = `<span class="toast-icon">${icons[type]}</span><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div>`;
+    t.innerHTML = `
+        <span class="toast-icon">${icons[type]}</span>
+        <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()" aria-label="Close">&times;</button>
+        <div class="toast-progress"><div class="toast-progress-bar"></div></div>
+    `;
     container.appendChild(t);
     
+    // Animate progress bar
+    const bar = t.querySelector('.toast-progress-bar');
+    if (bar) {
+        bar.style.transition = 'width 4s linear';
+        requestAnimationFrame(() => { bar.style.width = '0%'; });
+    }
+    
     setTimeout(() => {
-        t.style.animation = 'slideIn 0.3s ease reverse';
+        t.style.animation = 'toastIn 0.3s ease reverse';
         setTimeout(() => t.remove(), 300);
     }, 4000);
 }
@@ -1680,6 +1756,24 @@ function downloadFile(name, content, type) {
     a.download = name;
     a.click();
     URL.revokeObjectURL(url);
+}
+
+// Animated number counter
+function animateValue(el, end, suffix = '') {
+    if (!el) return;
+    const current = parseInt(el.textContent) || 0;
+    if (current === end) return;
+    
+    const duration = 400;
+    const start = performance.now();
+    const step = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        const value = Math.round(current + (end - current) * eased);
+        el.textContent = value + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
 }
 
 // Global functions for inline handlers
@@ -2026,318 +2120,6 @@ const bodyDoubling = {
     closeFeedbackModal() {
         document.getElementById('bdCompleteModal').style.display = 'none';
         this.backToBooking();
-    }
-};
-                </div>
-                <div class="bd-partner-interests">
-                    ${partner.interests.map(interest => `<span class="bd-interest-tag">${interest}</span>`).join('')}
-                </div>
-                <div class="bd-partner-info">
-                    ⏰ ${partner.timezone} • Prefers ${partner.sessionLength}min sessions
-                </div>
-                <div class="bd-partner-actions">
-                    <button class="btn btn-primary" onclick="bodyDoubling.connectToPartner('${partner.id}')" ${partner.status !== 'available' ? 'disabled' : ''}>
-                        ${partner.status === 'available' ? '📞 Call Now' : '💬 Message'}
-                    </button>
-                    <button class="btn btn-secondary" onclick="bodyDoubling.scheduleWithPartner('${partner.id}')">
-                        📅 Schedule
-                    </button>
-                </div>
-            </div>
-        `).join('');
-    },
-    
-    quickMatch() {
-        alert('🔍 Finding you a study partner...\n\nIn a full implementation, this would:\n• Match you with available partners\n• Consider your interests and timezone\n• Start a session immediately\n\nFor now, try selecting a partner from the "Find Partners" tab!');
-    },
-    
-    scheduleSession() {
-        const partnerName = prompt('Enter partner name to schedule with:');
-        if (!partnerName) return;
-        
-        const dateTime = prompt('Enter date and time (e.g., "Feb 10, 2026 2:00 PM"):');
-        if (!dateTime) return;
-        
-        const session = {
-            id: 'session_' + Date.now(),
-            partner: partnerName,
-            dateTime,
-            duration: this.profile.sessionLength,
-            createdAt: new Date().toISOString()
-        };
-        
-        const sessions = JSON.parse(localStorage.getItem('bdSessions') || '[]');
-        sessions.push(session);
-        localStorage.setItem('bdSessions', JSON.stringify(sessions));
-        
-        this.loadSessions();
-        alert('✅ Session scheduled!');
-    },
-    
-    scheduleWithPartner(partnerId) {
-        alert(`📅 Scheduling with partner \${partnerId}...\\n\\nIn production, this would show a calendar picker with the partner's availability.`);
-    },
-    
-    loadSessions() {
-        const sessions = JSON.parse(localStorage.getItem('bdSessions') || '[]');
-        const container = document.getElementById('bdSessionsList');
-        
-        if (sessions.length === 0) {
-            container.innerHTML = '<div class="bd-empty-state"><span class="empty-icon">📅</span><p>No upcoming sessions. Find a partner or quick match to get started!</p></div>';
-            return;
-        }
-        
-        container.innerHTML = sessions.map(session => `
-            <div class="bd-session-card">
-                <div class="bd-session-header">
-                    <span class="bd-session-partner">👤 ${session.partner}</span>
-                </div>
-                <div class="bd-session-time">📅 ${session.dateTime} • ${session.duration} minutes</div>
-                <div class="bd-session-actions">
-                    <button class="btn btn-primary" onclick="bodyDoubling.joinSession('${session.id}')">Join Session</button>
-                    <button class="btn btn-secondary" onclick="bodyDoubling.cancelSession('${session.id}')">Cancel</button>
-                </div>
-            </div>
-        `).join('');
-    },
-    
-    async connectToPartner(partnerId) {
-        try {
-            // Get user media
-            this.localStream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true
-            });
-            
-            // Display local video
-            const localVideo = document.getElementById('bdLocalVideo');
-            localVideo.srcObject = this.localStream;
-            
-            // Initiate call
-            this.currentCall = this.peer.call(partnerId, this.localStream);
-            
-            this.currentCall.on('stream', (remoteStream) => {
-                this.handleRemoteStream(remoteStream);
-            });
-            
-            this.currentCall.on('close', () => {
-                this.endSession();
-            });
-            
-            // Setup data connection for chat
-            this.dataConnection = this.peer.connect(partnerId);
-            this.setupDataConnection(this.dataConnection);
-            
-            // Show active session
-            this.startSession(partnerId);
-            
-        } catch (err) {
-            console.error('Failed to connect:', err);
-            alert('Could not access camera/microphone. Please check permissions.');
-        }
-    },
-    
-    async handleIncomingCall(call) {
-        const accept = confirm(`Incoming call from a study partner. Accept?`);
-        
-        if (!accept) {
-            call.close();
-            return;
-        }
-        
-        try {
-            this.localStream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true
-            });
-            
-            const localVideo = document.getElementById('bdLocalVideo');
-            localVideo.srcObject = this.localStream;
-            
-            call.answer(this.localStream);
-            this.currentCall = call;
-            
-            call.on('stream', (remoteStream) => {
-                this.handleRemoteStream(remoteStream);
-            });
-            
-            call.on('close', () => {
-                this.endSession();
-            });
-            
-            this.startSession(call.peer);
-            
-        } catch (err) {
-            console.error('Failed to answer call:', err);
-            alert('Could not access camera/microphone.');
-        }
-    },
-    
-    handleRemoteStream(stream) {
-        this.remoteStream = stream;
-        const remoteVideo = document.getElementById('bdRemoteVideo');
-        remoteVideo.srcObject = stream;
-    },
-    
-    setupDataConnection(conn) {
-        conn.on('open', () => {
-            console.log('Data connection established');
-        });
-        
-        conn.on('data', (data) => {
-            if (data.type === 'chat') {
-                this.displayChatMessage(data.message, false);
-            }
-        });
-    },
-    
-    startSession(partnerId) {
-        document.getElementById('bdNoSession').style.display = 'none';
-        document.getElementById('bdSessionActive').style.display = 'block';
-        document.getElementById('bdPartnerNameOverlay').textContent = partnerId;
-        
-        // Switch to active session tab
-        this.switchTab('active');
-        
-        // Start timer
-        this.sessionStartTime = Date.now();
-        this.sessionTimer = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - this.sessionStartTime) / 1000);
-            const minutes = Math.floor(elapsed / 60);
-            const seconds = elapsed % 60;
-            document.getElementById('bdSessionTimer').textContent = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }, 1000);
-    },
-    
-    toggleMic() {
-        if (!this.localStream) return;
-        
-        const audioTrack = this.localStream.getAudioTracks()[0];
-        if (audioTrack) {
-            audioTrack.enabled = !audioTrack.enabled;
-            const btn = document.getElementById('bdToggleMic');
-            btn.classList.toggle('active', audioTrack.enabled);
-            btn.querySelector('.control-icon').textContent = audioTrack.enabled ? '🎤' : '🔇';
-        }
-    },
-    
-    toggleVideo() {
-        if (!this.localStream) return;
-        
-        const videoTrack = this.localStream.getVideoTracks()[0];
-        if (videoTrack) {
-            videoTrack.enabled = !videoTrack.enabled;
-            const btn = document.getElementById('bdToggleVideo');
-            btn.classList.toggle('active', videoTrack.enabled);
-            btn.querySelector('.control-icon').textContent = videoTrack.enabled ? '📹' : '📷';
-        }
-    },
-    
-    async toggleScreen() {
-        try {
-            if (!this.localStream.getVideoTracks()[0].label.includes('screen')) {
-                // Start screen sharing
-                const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                const screenTrack = screenStream.getVideoTracks()[0];
-                
-                // Replace video track
-                const sender = this.currentCall.peerConnection
-                    .getSenders()
-                    .find(s => s.track.kind === 'video');
-                sender.replaceTrack(screenTrack);
-                
-                document.getElementById('bdToggleScreen').classList.add('active');
-                
-                screenTrack.onended = () => {
-                    this.toggleScreen(); // Switch back to camera
-                };
-            } else {
-                // Switch back to camera
-                const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                const videoTrack = videoStream.getVideoTracks()[0];
-                
-                const sender = this.currentCall.peerConnection
-                    .getSenders()
-                    .find(s => s.track.kind === 'video');
-                sender.replaceTrack(videoTrack);
-                
-                document.getElementById('bdToggleScreen').classList.remove('active');
-            }
-        } catch (err) {
-            console.error('Screen sharing error:', err);
-            alert('Could not share screen');
-        }
-    },
-    
-    toggleChat() {
-        const sidebar = document.getElementById('bdChatSidebar');
-        sidebar.style.display = sidebar.style.display === 'none' ? 'flex' : 'none';
-    },
-    
-    sendChatMessage() {
-        const input = document.getElementById('bdChatInput');
-        const message = input.value.trim();
-        
-        if (!message || !this.dataConnection) return;
-        
-        this.dataConnection.send({
-            type: 'chat',
-            message
-        });
-        
-        this.displayChatMessage(message, true);
-        input.value = '';
-    },
-    
-    displayChatMessage(text, isSelf) {
-        const container = document.getElementById('bdChatMessages');
-        const div = document.createElement('div');
-        div.className = `bd-chat-message ${isSelf ? 'self' : 'other'}`;
-        div.textContent = text;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-    },
-    
-    endSession() {
-        if (this.currentCall) {
-            this.currentCall.close();
-            this.currentCall = null;
-        }
-        
-        if (this.dataConnection) {
-            this.dataConnection.close();
-            this.dataConnection = null;
-        }
-        
-        if (this.localStream) {
-            this.localStream.getTracks().forEach(track => track.stop());
-            this.localStream = null;
-        }
-        
-        if (this.sessionTimer) {
-            clearInterval(this.sessionTimer);
-            this.sessionTimer = null;
-        }
-        
-        document.getElementById('bdNoSession').style.display = 'block';
-        document.getElementById('bdSessionActive').style.display = 'none';
-        document.getElementById('bdChatSidebar').style.display = 'none';
-        
-        // Clear videos
-        document.getElementById('bdLocalVideo').srcObject = null;
-        document.getElementById('bdRemoteVideo').srcObject = null;
-    },
-    
-    joinSession(sessionId) {
-        alert(`Joining session ${sessionId}...\n\nIn production, this would connect you to your scheduled partner.`);
-    },
-    
-    cancelSession(sessionId) {
-        const sessions = JSON.parse(localStorage.getItem('bdSessions') || '[]');
-        const filtered = sessions.filter(s => s.id !== sessionId);
-        localStorage.setItem('bdSessions', JSON.stringify(filtered));
-        this.loadSessions();
     }
 };
 
